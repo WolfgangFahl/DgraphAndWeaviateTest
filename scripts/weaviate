@@ -15,5 +15,7 @@ cd $stage
 curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/config.yaml
 # Download the Weaviate docker-compose file
 curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/docker-compose.yml
+cat docker-compose.yml | sed s/8080/8153/g > /tmp/docker-compose.yml
+mv /tmp/docker-compose.yml docker-compose.yml
 # Run Docker Compose
 docker-compose up
