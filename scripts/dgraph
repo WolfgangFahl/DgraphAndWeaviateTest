@@ -7,6 +7,16 @@
 # see https://stackoverflow.com/questions/63260073/starting-zero-alpha-and-ratel-in-a-single-command-e-g-in-macosx-and-other-envir
 # see https://discuss.dgraph.io/t/dgraph-start-script/9231
 version=v20.03.0
+os=$(uname)
+case $os in
+  Linux)  
+    docker="docker";;
+    #docker="sudo docker";;
+  Darwin) 
+    docker="docker";;
+  *) 
+    docker="docker";;
+esac
 
 #ansi colors
 #http://www.csc.uvic.ca/~sae/seng265/fall04/tips/s265s047-tips/bash-using-colors.html
@@ -52,6 +62,7 @@ usage() {
   echo "-b | --bash: start a bash terminal shell within the currently running container"
   echo "-h | --help: show this usage"
   echo "-k | --kill: stop the docker image"
+  echo "-p | --pull: pull the docker image"
   exit 1
 }
 
@@ -60,8 +71,17 @@ usage() {
 #
 stopImage() {
   color_msg $blue "stopping and removing dgraph image ..."
-  docker stop dgraph
-  docker rm dgraph
+  $docker stop dgraph
+  $docker rm dgraph
+  color_msg $green "...done"
+}
+
+#
+# pull the docker image
+#
+pullImage() {
+  color_msg $blue "pulling dgraph image $version ..."
+  $docker pull dgraph/dgraph:$version
   color_msg $green "...done"
 }
 
@@ -69,14 +89,14 @@ stopImage() {
 # start a bash shell within the currently running container
 #
 bashInto() {
-  sudo docker exec -it dgraph bash
+  $docker exec -it dgraph bash
 }
 
 #
 # dgraph zero
 #
 zero() {
-  docker run -it -p 5080:5080 -p 6080:6080 -p 8080:8080 \
+  $docker run -it -p 5080:5080 -p 6080:6080 -p 8080:8080 \
   -p 9080:9080 -p 8000:8000 -v ~/dgraph:/dgraph --name dgraph \
   dgraph/dgraph:$version dgraph zero
 }
@@ -85,14 +105,14 @@ zero() {
 # dgraph alpha
 #
 alpha() {
-  docker exec -it dgraph dgraph alpha --lru_mb 2048 --zero localhost:5080 --whitelist 0.0.0.0/0
+  $docker exec -it dgraph dgraph alpha --lru_mb 2048 --zero localhost:5080 --whitelist 0.0.0.0/0
 }
 
 #
 # dgraph ratel
 #
 ratel() {
-  docker exec -it dgraph dgraph-ratel
+  $docker exec -it dgraph dgraph-ratel
 }
 
 me=$0
@@ -115,7 +135,6 @@ case $base in
       fi
       #echo $dir $option
       color_msg $blue "starting dgraph $option ..."
-      os=$(uname)
       case $os in
           Darwin)
             open -a terminal.app $dir/$option
@@ -131,7 +150,7 @@ case $base in
             #    break
             #  fi
             #done
-            nohup $dir/$option 2>&1 > /tmp/$option.log&
+            nohup $dir/$option > /tmp/$option.log 2>&1 &
           ;;
           *)
             error "unsupported operating system $os"
@@ -153,6 +172,7 @@ do
     alpha) alpha;;
     ratel) ratel;;
     zero) zero;;
+    -p|--pull) pullImage;;
     -b|--bash) bashInto;;
     -k|--kill) stopImage;;
     -h|--help) usage;;
