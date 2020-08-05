@@ -73,6 +73,7 @@ cd $stage
 
 if [ $# -lt 1 ]
 then
+  download
   docker-compose up
 fi
 # commandline option
