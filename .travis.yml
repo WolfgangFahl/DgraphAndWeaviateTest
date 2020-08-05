@@ -27,5 +27,7 @@ script:
   - scripts/dgraph -p
   # run dgraph
   - scripts/dgraph
+  # pull and run weaviate
+  - scripts/weaviate
 # command to run tests
   - scripts/test
