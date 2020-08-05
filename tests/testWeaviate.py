@@ -123,7 +123,7 @@ class TestWeaviate(unittest.TestCase):
         }
 
 
-        client = weaviate.Client("http://2.0.0.15:8080")
+        client = self.getClient()
 
         if not client.contains_schema():
             client.create_schema(schema)

@@ -13,13 +13,13 @@ it="-it"
 
 os=$(uname)
 case $os in
-  Linux)  
+  Linux)
     docker="docker"
     it="";;
     #docker="sudo docker";;
-  Darwin) 
+  Darwin)
     docker="docker";;
-  *) 
+  *)
     docker="docker";;
 esac
 
@@ -101,6 +101,8 @@ bashInto() {
 # dgraph zero
 #
 zero() {
+  # Let’s create a folder for storing Dgraph data outside of the container:
+  mkdir -p ~/dgraph
   $docker run $it -p 5080:5080 -p 6080:6080 -p 8080:8080 \
   -p 9080:9080 -p 8000:8000 -v ~/dgraph:/dgraph --name dgraph \
   dgraph/dgraph:$version dgraph zero

@@ -19,7 +19,7 @@ class TestDgraph(unittest.TestCase):
 
     def testSimple(self):
         ''' test dgraph with simple example modified in OO fashion see https://github.com/dgraph-io/pydgraph/blob/master/examples/simple/simple.py'''
-        simple=Simple()
+        simple=Simple(debug=True)
         simple.drop_all()
         simple.set_schema()
         simple.create_data()

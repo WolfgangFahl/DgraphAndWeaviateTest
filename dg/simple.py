@@ -13,11 +13,12 @@ class Simple(object):
     '''
 
 
-    def __init__(self, port=9080):
+    def __init__(self, port=9080, debug=False):
         '''
         Constructor
         '''
         self.port=port
+        self.debug=debug
         self.client_stub = pydgraph.DgraphClientStub('localhost:%d' % (port))
         self.client =pydgraph.DgraphClient(self.client_stub)
         
@@ -115,6 +116,8 @@ class Simple(object):
     
         variables = {'$a': '%s' % name}
         res = self.client.txn(read_only=True).query(query, variables=variables)
+        if self.debug:
+            print (res.json.decode())
         ppl = json.loads(res.json)
     
         # Print results.
