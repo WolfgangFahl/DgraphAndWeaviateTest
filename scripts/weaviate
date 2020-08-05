@@ -1,4 +1,13 @@
+#!/bin/bash
+#
 # Weaviate with an English Contextionary
+#
+which docker-compose
+if [ $? -ne 0 ]
+then
+  echo "docker-compose needs to be installed for weaviate to run" 1>&2
+  exit 1
+fi
 # Download the Weaviate configuration file
 stage=$HOME/source/docker/Weaviate
 mkdir -p $stage
