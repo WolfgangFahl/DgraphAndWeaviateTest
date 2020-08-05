@@ -1,0 +1,10 @@
+# Weaviate with an English Contextionary
+# Download the Weaviate configuration file
+stage=$HOME/source/docker/Weaviate
+mkdir -p $stage
+cd $stage
+curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/config.yaml
+# Download the Weaviate docker-compose file
+curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/docker-compose.yml
+# Run Docker Compose
+docker-compose up

@@ -25,7 +25,6 @@ class TestWeaviate(unittest.TestCase):
 
     def testWeaviate(self):
         ''' see https://www.semi.technology/documentation/weaviate/current/client-libs/python.html '''
-        return
         client = self.getClient()
         try:
             client.create_schema("https://raw.githubusercontent.com/semi-technologies/weaviate-python-client/master/documentation/getting_started/people_schema.json")
