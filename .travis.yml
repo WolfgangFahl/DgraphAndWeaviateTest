@@ -7,9 +7,11 @@ python:
   - "3.6"
   - "3.7"
   - "3.8"
-# allow gui output
 services:
+# allow gui output
   - xvfb
+# allow use of docker  
+  - docker
 before_install:
   # install some renderers
   # check version
@@ -19,6 +21,11 @@ install:
 # command to run tests
 script:
 # command to install dependencies
-  - ./install
+  - scripts/install
+# command to run Dgraph
+  # pull dgraph
+  - scripts/dgraph -p
+  # run dgraph
+  - scripts/dgraph
 # command to run tests
-  - ./test
+  - scripts/test
