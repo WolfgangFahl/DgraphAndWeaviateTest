@@ -2,4 +2,4 @@
 # https://pypi.org/project/pydgraph/
 pydgraph
 # https://www.semi.technology/documentation/weaviate/current/client-libs/python.html
-weaviate-client
+weaviate-client>=0.4.1

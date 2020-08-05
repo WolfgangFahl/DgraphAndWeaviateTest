@@ -6,6 +6,7 @@ Created on 24.07.2020
 import unittest
 import weaviate
 import time
+import getpass
 
 class TestWeaviate(unittest.TestCase):
 # https://www.semi.technology/documentation/weaviate/current/client-libs/python.html
@@ -13,6 +14,9 @@ class TestWeaviate(unittest.TestCase):
     def setUp(self):
         self.port=8080
         self.host="localhost"
+        if getpass.getuser()=="wf":
+            self.host="merkur"
+            self.port=8153
         pass
     
     def getClient(self):
@@ -22,12 +26,19 @@ class TestWeaviate(unittest.TestCase):
     def tearDown(self):
         pass
         
+    def testRunning(self):
+        '''
+        make sure weaviate is running
+        '''
+        w=self.getClient()
+        self.assertTrue(w.is_reachable())
+            
 
-    def testWeaviate(self):
+    def testWeaviateSchema(self):
         ''' see https://www.semi.technology/documentation/weaviate/current/client-libs/python.html '''
-        client = self.getClient()
+        w = self.getClient()
         try:
-            client.create_schema("https://raw.githubusercontent.com/semi-technologies/weaviate-python-client/master/documentation/getting_started/people_schema.json")
+            w.create_schema("https://raw.githubusercontent.com/semi-technologies/weaviate-python-client/master/documentation/getting_started/people_schema.json")
         except:
             pass
         entries=[
@@ -38,7 +49,7 @@ class TestWeaviate(unittest.TestCase):
         for entry in entries:
             dict,type,uid=entry
             try:
-                client.create(dict,type,uid)
+                w.create(dict,type,uid)
             except weaviate.exceptions.ThingAlreadyExistsException as taee:
                 print ("%s already created" % dict['name'])
             
