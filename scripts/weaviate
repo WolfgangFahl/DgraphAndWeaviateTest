@@ -2,20 +2,86 @@
 #
 # Weaviate with an English Contextionary
 #
+#ansi colors
+#http://www.csc.uvic.ca/~sae/seng265/fall04/tips/s265s047-tips/bash-using-colors.html
+blue='\033[0;34m'
+red='\033[0;31m'
+green='\033[0;32m' # '\e[1;32m' is too bright for white bg.
+endColor='\033[0m'
+
+#
+# a colored message
+#   params:
+#     1: l_color - the color of the message
+#     2: l_msg - the message to display
+#
+color_msg() {
+  local l_color="$1"
+  local l_msg="$2"
+  echo -e "${l_color}$l_msg${endColor}"
+}
+
+#
+# error
+#
+# show the given error message on stderr and exit
+#
+#   params:
+#     1: l_msg - the error message to display
+#
+error() {
+  local l_msg="$1"
+  # use ansi red for error
+  color_msg $red "Error:" 1>&2
+  color_msg $red "\t$l_msg" 1>&2
+  exit 1
+}
+
+
+# show usage
+#
+usage() {
+  echo "$0 [-h|--help|-k|--kill]"
+  echo ""
+  echo "-h | --help: show this usage"
+  echo "-k | --kill: stop the docker compose services"
+  exit 1
+}
+
 which docker-compose
 if [ $? -ne 0 ]
 then
-  echo "docker-compose needs to be installed for weaviate to run" 1>&2
-  exit 1
+  error "docker-compose needs to be installed for weaviate to run"
 fi
+
 # Download the Weaviate configuration file
+download() {
+  curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/config.yaml
+  # Download the Weaviate docker-compose file
+  curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/docker-compose.yml
+  cat docker-compose.yml | sed s/8080/8153/g > /tmp/docker-compose.yml
+  mv /tmp/docker-compose.yml docker-compose.yml
+  # Run Docker Compose
+}
 stage=$HOME/source/docker/Weaviate
-mkdir -p $stage
+if [ ! -d $stage ]
+then
+  color_msg $blue creating "$stage"
+  mkdir -p $stage
+fi
 cd $stage
-curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/config.yaml
-# Download the Weaviate docker-compose file
-curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/docker-compose.yml
-cat docker-compose.yml | sed s/8080/8153/g > /tmp/docker-compose.yml
-mv /tmp/docker-compose.yml docker-compose.yml
-# Run Docker Compose
-docker-compose up
+
+if [ $# -lt 1 ]
+then
+  docker-compose up
+fi
+# commandline option
+while [  "$1" != ""  ]
+do
+  option="$1"
+  case $option in
+    -k|--kill) docker-compose down;;
+    -h|--help) usage;;
+  esac
+  shift
+done
