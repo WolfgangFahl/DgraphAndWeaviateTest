@@ -2,6 +2,12 @@
 #
 # Weaviate with an English Contextionary
 #
+
+# port to run weaviate at
+port=8153
+# maximum number of seconds to wait for weaviate startup
+MAX_WAIT_SECONDS=60
+
 #ansi colors
 #http://www.csc.uvic.ca/~sae/seng265/fall04/tips/s265s047-tips/bash-using-colors.html
 blue='\033[0;34m'
@@ -59,10 +65,34 @@ download() {
   curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/config.yaml
   # Download the Weaviate docker-compose file
   curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/docker-compose.yml
-  cat docker-compose.yml | sed s/8080/8153/g > /tmp/docker-compose.yml
+  cat docker-compose.yml | sed s/8080/$port/g > /tmp/docker-compose.yml
   mv /tmp/docker-compose.yml docker-compose.yml
   # Run Docker Compose
 }
+
+#
+# wait for weaviate to start
+#
+wait4Weaviate() {
+  ALREADY_WAITING=0
+  color_msg $blue "waiting for weaviate to start "
+  while true; do
+    if curl -s http://localhost:$port > /dev/null; then
+        break
+    else
+      echo -n "."
+      if [ $ALREADY_WAITING -gt $MAX_WAIT_SECONDS ]; then
+        error "Weaviate did not start up in $MAX_WAIT_SECONDS."
+      else
+        sleep 2
+        let ALREADY_WAITING=$ALREADY_WAITING+2
+      fi
+    fi
+  done
+  echo "."
+  color_msg $green "weaviate is up and running on port $port"
+}
+
 stage=$HOME/source/docker/Weaviate
 if [ ! -d $stage ]
 then
@@ -74,7 +104,8 @@ cd $stage
 if [ $# -lt 1 ]
 then
   download
-  docker-compose up
+  docker-compose up -d
+  wait4Weaviate
 fi
 # commandline option
 while [  "$1" != ""  ]
