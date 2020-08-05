@@ -158,6 +158,8 @@ case $base in
             #  fi
             #done
             nohup $dir/$option > /tmp/$option.log 2>&1 &
+            sleep 2
+            tail /tmp/$option.log
           ;;
           *)
             error "unsupported operating system $os"
