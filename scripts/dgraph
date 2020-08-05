@@ -62,7 +62,7 @@ error() {
 # show usage
 #
 usage() {
-  echo "$0 [-h|--help|-k|--kill"
+  echo "$0 [-b|--bash|-h|--help|-k|--kill|-p|--pull]"
   echo ""
   echo "-b | --bash: start a bash terminal shell within the currently running container"
   echo "-h | --help: show this usage"
