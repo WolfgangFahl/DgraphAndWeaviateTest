@@ -31,13 +31,11 @@ class Simple(Dgraph):
             dob
         }
         """
-        return self.client.alter(pydgraph.Operation(schema=schema))
+        return self.addSchema(schema)
     
     # Create data using JSON.
     def create_data(self):
-        # Create a new transaction.
-        txn = self.client.txn()
-        try:
+        
             # Create data.
             p = {
                 'uid': '_:alice',
@@ -65,20 +63,11 @@ class Simple(Dgraph):
                 ]
             }
     
-            # Run mutation.
-            response = txn.mutate(set_obj=p)
-    
-            # Commit transaction.
-            txn.commit()
+            response=self.addData(p)
     
             # Get uid of the outermost object (person named "Alice").
             # response.uids returns a map from blank node names to uids.
             print('Created person named "Alice" with uid = {}'.format(response.uids['alice']))
-    
-        finally:
-            # Clean up. Calling this after txn.commit() is a no-op and hence safe.
-            txn.discard()
-
 
     # Query for data.
     def query_name(self,name):
