@@ -6,17 +6,17 @@ Created on 24.07.2020
 import unittest
 import weaviate
 import time
-import getpass
+#import getpass
 
 class TestWeaviate(unittest.TestCase):
 # https://www.semi.technology/documentation/weaviate/current/client-libs/python.html
 
     def setUp(self):
-        self.port=8080
+        self.port=8153
         self.host="localhost"
-        if getpass.getuser()=="wf":
-            self.host="merkur"
-            self.port=8153
+        #if getpass.getuser()=="wf":
+        #    self.host="zeus"
+        #    self.port=8080
         pass
     
     def getClient(self):
@@ -30,7 +30,6 @@ class TestWeaviate(unittest.TestCase):
         '''
         make sure weaviate is running
         '''
-        return
         w=self.getClient()
         self.assertTrue(w.is_reachable())
             
@@ -85,6 +84,9 @@ class TestWeaviate(unittest.TestCase):
         w.create_thing({"name": "Tim Berners-Lee"}, "Person")
         
     def testEventSchema(self):    
+        '''
+        https://stackoverflow.com/a/63077495/1497139
+        '''
         return
         schema = {
           "things": {
