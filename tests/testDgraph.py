@@ -60,6 +60,7 @@ type Country {
     name
     code
     capital
+    location
   }
 }'''
         queryResult=cg.query(query) 
