@@ -67,6 +67,96 @@ type Country {
         self.assertTrue("countries" in queryResult)
         countries=queryResult["countries"]
         self.assertEqual(247,len(countries))
+        schemaResult=cg.query("schema{}")
+        print(schemaResult)
+        cg.close
+        
+    def testSchema(self):   
+        '''
+        test  schema creation and query
+        see https://dgraph.io/tour/schema/1/
+        '''
+        cg=Dgraph(debug=True)
+        cg.drop_all()
+        schemaDefinition='''
+        # Define Types
+
+type Person {
+    name
+    boss_of
+    works_for
+}
+
+type Company {
+    name
+    industry
+    work_here #this is an alias
+}
+
+# Define Directives and index
+
+industry: string @index(term) .
+boss_of: [uid] .
+name: string @index(exact, term) .
+works_for: [uid] .
+work_here: [uid] .''' 
+        cg.addSchema(schemaDefinition)
+        schemaResult=cg.query("schema{}")
+        self.assertTrue("schema" in schemaResult)
+        schema=schemaResult["schema"]
+        print(schema)
+        # There should be 7 schema elements
+        self.assertEqual(7, len(schema))
+        nquads='''_:company1 <name> "CompanyABC" .
+    _:company1 <dgraph.type> "Company" .
+    _:company2 <name> "The other company" .
+    _:company2 <dgraph.type> "Company" .
+
+    _:company1 <industry> "Machinery" .
+
+    _:company2 <industry> "High Tech" .
+
+    _:jack <works_for> _:company1 .
+    _:jack <dgraph.type> "Person" .
+
+    _:ivy <works_for> _:company1 .
+    _:ivy <dgraph.type> "Person" .
+
+    _:zoe <works_for> _:company1 .
+    _:zoe <dgraph.type> "Person" .
+
+    _:jack <name> "Jack" .
+    _:ivy <name> "Ivy" .
+    _:zoe <name> "Zoe" .
+    _:jose <name> "Jose" .
+    _:alexei <name> "Alexei" .
+
+    _:jose <works_for> _:company2 .
+    _:jose <dgraph.type> "Person" .
+    _:alexei <works_for> _:company2 .
+    _:alexei <dgraph.type> "Person" .
+
+    _:ivy <boss_of> _:jack .
+
+    _:alexei <boss_of> _:jose .'''
+        cg.addData(nquads=nquads)
+        query='''
+        {
+    personCompanyAffiliation(func: has(works_for)) {
+    uid
+    name
+    works_for {
+       uid
+       name
+    }
+  }
+}
+'''
+        queryResult=cg.query(query)
+        self.assertTrue('personCompanyAffiliation' in queryResult)
+        pca=queryResult['personCompanyAffiliation']
+        print(pca)
+        self.assertEquals(5,len(pca))
         cg.close
         
     def testSimple(self):

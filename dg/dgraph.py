@@ -29,9 +29,9 @@ class Dgraph(object):
         result=self.client.alter(pydgraph.Operation(schema=schema))
         return result
     
-    def addData(self,obj):
+    def addData(self,obj=None,nquads=None):
         '''
-        add the given object
+        add the given object or nquads if  both are given nquads are ignored
         '''
         response=None
         # Create a new transaction.
@@ -39,7 +39,10 @@ class Dgraph(object):
         
         try:
             # Run mutation.
-            response = txn.mutate(set_obj=obj)
+            if obj is not None:
+                response = txn.mutate(set_obj=obj)
+            if nquads is not None:
+                response = txn.mutate(set_nquads=nquads)    
             # Commit transaction.
             txn.commit()
         finally:
