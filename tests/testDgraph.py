@@ -26,6 +26,7 @@ class TestDgraph(unittest.TestCase):
         test handling countries
         '''
         countryJsonUrl="https://pkgstore.datahub.io/core/country-list/data_json/data/8c458f2d15d9f2119654b29ede6e45b8/data_json.json"
+        countryJsonUrl="https://gist.githubusercontent.com/erdem/8c7d26765831d0f9a8c62f02782ae00d/raw/248037cd701af0a4957cce340dabb0fd04e38f4c/countries.json"
         with urllib.request.urlopen(countryJsonUrl) as url:
             countryDict=json.loads(url.read().decode())
         #print(countryDict)    
@@ -33,19 +34,35 @@ class TestDgraph(unittest.TestCase):
         cg.drop_all()
         schema='''
 name: string @index(exact) .
-code: string @index(exact) .        
+code: string @index(exact) .     
+capital: string .   
 type Country {
    code
    name
+   capital
 }'''
         cg.addSchema(schema)
         for country in countryDict:
             # rename dictionary keys
-            country['name']=country.pop('Name')
-            country['code']=country.pop('Code')
+            #country['name']=country.pop('Name')
+            country['code']=country.pop('country_code')
             country['dgraph.type']='Country'
             print(country) 
             cg.addData(country)
+            
+        query='''{
+# list of countries
+  countries(func: has(code)) {
+    uid
+    name
+    code
+    capital
+  }
+}'''
+        queryResult=cg.query(query) 
+        self.assertTrue("countries" in queryResult)
+        countries=queryResult["countries"]
+        self.assertEqual(247,len(countries))
         cg.close
         
     def testSimple(self):

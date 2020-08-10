@@ -4,6 +4,7 @@ Created on 2020-08-10
 @author: wf
 '''
 import pydgraph
+import json
 
 class Dgraph(object):
     '''
@@ -45,6 +46,16 @@ class Dgraph(object):
             # Clean up. Calling this after txn.commit() is a no-op and hence safe.
             txn.discard()
         return response
+    
+    def query(self,graphQuery):
+        '''
+        do a query 
+        '''
+        response = self.client.txn(read_only=True).query(graphQuery)
+        if self.debug:
+            print (response.json.decode())
+        result = json.loads(response.json)
+        return result
         
     def drop_all(self):
         ''' Drop All - discard all data and start from a clean state.'''
