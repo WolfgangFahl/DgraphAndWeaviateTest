@@ -25,7 +25,6 @@ class TestDgraph(unittest.TestCase):
         ''' 
         test handling countries
         '''
-        countryJsonUrl="https://pkgstore.datahub.io/core/country-list/data_json/data/8c458f2d15d9f2119654b29ede6e45b8/data_json.json"
         countryJsonUrl="https://gist.githubusercontent.com/erdem/8c7d26765831d0f9a8c62f02782ae00d/raw/248037cd701af0a4957cce340dabb0fd04e38f4c/countries.json"
         with urllib.request.urlopen(countryJsonUrl) as url:
             countryDict=json.loads(url.read().decode())
@@ -36,9 +35,11 @@ class TestDgraph(unittest.TestCase):
 name: string @index(exact) .
 code: string @index(exact) .     
 capital: string .   
+location: geo .
 type Country {
    code
    name
+   location
    capital
 }'''
         cg.addSchema(schema)
@@ -47,6 +48,8 @@ type Country {
             #country['name']=country.pop('Name')
             country['code']=country.pop('country_code')
             country['dgraph.type']='Country'
+            lat,lng=country.pop('latlng')
+            country['location']={'type': 'Point', 'coordinates': [lng,lat] }
             print(country) 
             cg.addData(country)
             

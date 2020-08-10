@@ -43,6 +43,8 @@ class Dgraph(object):
             # Commit transaction.
             txn.commit()
         finally:
+            if self.debug:
+                print(obj)
             # Clean up. Calling this after txn.commit() is a no-op and hence safe.
             txn.discard()
         return response
