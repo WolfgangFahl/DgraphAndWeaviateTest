@@ -6,26 +6,13 @@ Created on 05.08.2020
 import pydgraph
 import datetime
 import json
+from dg.dgraph import Dgraph
 
-class Simple(object):
+class Simple(Dgraph):
     '''
     see https://github.com/dgraph-io/pydgraph/blob/master/examples/simple/simple.py
     '''
-
-
-    def __init__(self, port=9080, debug=False):
-        '''
-        Constructor
-        '''
-        self.port=port
-        self.debug=debug
-        self.client_stub = pydgraph.DgraphClientStub('localhost:%d' % (port))
-        self.client =pydgraph.DgraphClient(self.client_stub)
-        
-    # Drop All - discard all data and start from a clean slate.
-    def drop_all(self):
-        return self.client.alter(pydgraph.Operation(drop_all=True))    
-    
+            
     # Create a schema
     def set_schema(self):
         schema = """
@@ -147,6 +134,5 @@ class Simple(object):
         finally:
             txn.discard()
             
-    def close(self):
-        self.client_stub.close()        
+         
         

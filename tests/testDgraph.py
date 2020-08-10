@@ -7,6 +7,7 @@ import unittest
 from dg.simple import Simple
 
 class TestDgraph(unittest.TestCase):
+    ''' test Dgraph database '''
 
 
     def setUp(self):
