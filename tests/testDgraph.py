@@ -1,5 +1,5 @@
 '''
-Created on 23.07.2020
+Created on 2020-07-23
 
 @author: wf
 '''
@@ -8,6 +8,7 @@ from dg.simple import Simple
 from dg.dgraph import Dgraph
 import urllib.request
 import json
+import time
 
 class TestDgraph(unittest.TestCase):
     ''' test Dgraph database '''
@@ -27,8 +28,8 @@ class TestDgraph(unittest.TestCase):
         '''
         countryJsonUrl="https://gist.githubusercontent.com/erdem/8c7d26765831d0f9a8c62f02782ae00d/raw/248037cd701af0a4957cce340dabb0fd04e38f4c/countries.json"
         with urllib.request.urlopen(countryJsonUrl) as url:
-            countryDict=json.loads(url.read().decode())
-        #print(countryDict)    
+            countryList=json.loads(url.read().decode())
+        #print(countryList)    
         cg=Dgraph(debug=True)
         cg.drop_all()
         schema='''
@@ -43,7 +44,8 @@ type Country {
    capital
 }'''
         cg.addSchema(schema)
-        for country in countryDict:
+        startTime=time.time()
+        for country in countryList:
             # rename dictionary keys
             #country['name']=country.pop('Name')
             country['code']=country.pop('country_code')
@@ -51,8 +53,9 @@ type Country {
             lat,lng=country.pop('latlng')
             country['location']={'type': 'Point', 'coordinates': [lng,lat] }
             print(country) 
-            cg.addData(country)
-            
+        cg.addData(countryList)
+        elapsed=time.time() - startTime
+        print("adding %d countries took %5.1f s" % (len(countryList),elapsed)) 
         query='''{
 # list of countries
   countries(func: has(code)) {

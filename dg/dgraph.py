@@ -40,7 +40,14 @@ class Dgraph(object):
         try:
             # Run mutation.
             if obj is not None:
-                response = txn.mutate(set_obj=obj)
+                # check whether obj is  a list of items 
+                # if do a mutation for every item in the list
+                if obj is list:
+                    for item in obj:
+                        txn.mutate(set_obj=item)
+                else:        
+                    # single object
+                    response = txn.mutate(set_obj=obj)
             if nquads is not None:
                 response = txn.mutate(set_nquads=nquads)    
             # Commit transaction.
