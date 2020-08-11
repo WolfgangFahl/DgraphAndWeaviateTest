@@ -72,7 +72,7 @@ type Country {
         print(schemaResult)
         self.assertTrue("schema" in schemaResult)
         schema=schemaResult["schema"]
-        self.assertEqual(7,len(schema))
+        self.assertEqual(8,len(schema))
         # see https://discuss.dgraph.io/t/running-upsert-in-python/9364
         """mutation='''
         upsert {  
@@ -125,8 +125,8 @@ work_here: [uid] .'''
         self.assertTrue("schema" in schemaResult)
         schema=schemaResult["schema"]
         print(schema)
-        # There should be 7 schema elements
-        self.assertEqual(7, len(schema))
+        # There should be 8 schema elements
+        self.assertEqual(8, len(schema))
         nquads='''_:company1 <name> "CompanyABC" .
     _:company1 <dgraph.type> "Company" .
     _:company2 <name> "The other company" .
