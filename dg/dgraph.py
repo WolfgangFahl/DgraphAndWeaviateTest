@@ -59,6 +59,11 @@ class Dgraph(object):
             txn.discard()
         return response
     
+    def mutate(self,mutation):
+        # Create a new transaction.
+        txn = self.client.txn()
+        return txn.mutate(mutation=mutation,commit_now=True)
+        
     def query(self,graphQuery):
         '''
         do a query 

@@ -17,10 +17,8 @@ class TestDgraph(unittest.TestCase):
     def setUp(self):
         pass
 
-
     def tearDown(self):
         pass
-
 
     def testCountries(self):
         ''' 
@@ -72,6 +70,25 @@ type Country {
         self.assertEqual(247,len(countries))
         schemaResult=cg.query("schema{}")
         print(schemaResult)
+        self.assertTrue("schema" in schemaResult)
+        schema=schemaResult["schema"]
+        self.assertEqual(7,len(schema))
+        # see https://discuss.dgraph.io/t/running-upsert-in-python/9364
+        """mutation='''
+        upsert {  
+  query {
+    # get the uids of all Country nodes
+     countries as var (func: has(<dgraph.type>)) @filter(eq(<dgraph.type>, "Country")) {
+        uid
+    }
+  }
+  mutation {
+    delete {
+      uid(countries) * * .
+    }
+  }
+}'''
+        cg.mutate(mutation)"""
         cg.close
         
     def testSchema(self):   
