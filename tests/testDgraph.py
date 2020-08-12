@@ -176,7 +176,7 @@ work_here: [uid] .'''
         self.assertTrue('personCompanyAffiliation' in queryResult)
         pca=queryResult['personCompanyAffiliation']
         print(pca)
-        self.assertEquals(5,len(pca))
+        self.assertEqual(5,len(pca))
         cg.close
         
     def testSimple(self):
