@@ -9,6 +9,7 @@ from dg.dgraph import Dgraph
 import urllib.request
 import json
 import time
+import getpass
 
 class TestDgraph(unittest.TestCase):
     ''' test Dgraph database '''
@@ -16,6 +17,8 @@ class TestDgraph(unittest.TestCase):
 
     def setUp(self):
         self.host='localhost'
+        if getpass.getuser()=="wf":
+            self.host='merkur'
         pass
 
     def tearDown(self):
@@ -34,7 +37,9 @@ class TestDgraph(unittest.TestCase):
             cityList=json.loads(url.read().decode())
         self.assertEqual(128769,(len(cityList)))
         cityIter=iter(cityList)
-        limit=2000
+        limit=1000
+        if getpass.getuser()=="travis":
+            limit=10000
         for i in range(limit):
             city=next(cityIter)
             city['dgraph.type']='City'
