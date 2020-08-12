@@ -37,21 +37,25 @@ class Dgraph(object):
         '''
         itemList=obj
         if itemList is None:
-            self.addDataTxn(obj=None,nquads=nquads,itemTitle="nquads")
+            return self.addDataTxn(obj=None,nquads=nquads,itemTitle="nquads")
         else:         
-            if type(itemList) is list:
+            if type(itemList) is not list:
+                return self.addDataTxn(obj=obj)
+            else:    
                 if limit is not None:
                     itemList=itemList[:limit]
                 if batchSize is None:
-                    self.addDataTxn(obj=itemList)
+                    return self.addDataTxn(obj=itemList)
                 else:
                     startTime=time.time()
+                    responses=[]
                     # store the list in batches
                     for i in range(0, len(itemList), batchSize):
                         itemBatch=itemList[i:i+batchSize]
-                        self.addDataTxn(obj=itemBatch, title="batch")
+                        response=self.addDataTxn(obj=itemBatch, title="batch")
+                        responses.append(response)
                     print("addData for %9d items in %6.1f secs" % (len(itemList),time.time()-startTime))
-            
+                    return responses
         
     def addDataTxn(self,obj=None,nquads=None,title="addData",itemTitle="items"):    
         response=None

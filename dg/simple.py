@@ -3,7 +3,6 @@ Created on 05.08.2020
 
 @author: wf
 '''
-import pydgraph
 import datetime
 import json
 from dg.dgraph import Dgraph
