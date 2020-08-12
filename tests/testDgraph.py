@@ -43,9 +43,9 @@ class TestDgraph(unittest.TestCase):
         for i in range(limit):
             city=next(cityIter)
             city['dgraph.type']='City'
-            lat=city['lat']
-            lng=city['lng']
-            #city['location']={'type': 'Point', 'coordinates': [lng,lat] }
+            lat=float(city['lat'])
+            lng=float(city['lng'])
+            city['location']={'type': 'Point', 'coordinates': [lng,lat] }
             #print("%d: %s" % (i,city))
         dgraph=self.getDGraph()
         dgraph.drop_all()
@@ -57,10 +57,10 @@ lng: float .
 location: geo .
 type City {
    name
-   country
    lat
    lng
    location
+   country
 }'''
         dgraph.addSchema(schema)
         dgraph.addData(obj=cityList,limit=limit,batchSize=250)
