@@ -44,20 +44,23 @@ class Dgraph(object):
             else:    
                 if limit is not None:
                     itemList=itemList[:limit]
+                else:
+                    limit=len(itemList)    
                 if batchSize is None:
                     return self.addDataTxn(obj=itemList)
                 else:
                     startTime=time.time()
                     responses=[]
                     # store the list in batches
-                    for i in range(0, len(itemList), batchSize):
+                    size=len(itemList)
+                    for i in range(0, size, batchSize):
                         itemBatch=itemList[i:i+batchSize]
-                        response=self.addDataTxn(obj=itemBatch, title="batch")
+                        response=self.addDataTxn(obj=itemBatch, title="batch",index=i,total=size)
                         responses.append(response)
                     print("addData for %9d items in %6.1f secs" % (len(itemList),time.time()-startTime))
                     return responses
         
-    def addDataTxn(self,obj=None,nquads=None,title="addData",itemTitle="items"):    
+    def addDataTxn(self,obj=None,nquads=None,index=None,total=None,title="addData",itemTitle="items"):    
         response=None
         # Create a new transaction.
         txn = self.client.txn()
@@ -65,6 +68,10 @@ class Dgraph(object):
         try:
             itemList=obj
             size=1
+            if total is None:
+                total=size
+            if index is None:
+                index=0    
             startTime=time.time()
             # Run mutation.
             if itemList is not None:
@@ -78,7 +85,7 @@ class Dgraph(object):
                     # single object
                     response = txn.mutate(set_obj=obj)
                 if self.profile:    
-                    print("%7s for %9d %s in %6.1f secs" % (title,size,itemTitle,time.time()-startTime))    
+                    print("%7s for %9d of %9d %s in %6.1f secs" % (title,index,total,itemTitle,time.time()-startTime))    
             if nquads is not None:
                 response = txn.mutate(set_nquads=nquads)    
             # Commit transaction.
