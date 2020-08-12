@@ -62,12 +62,13 @@ error() {
 # show usage
 #
 usage() {
-  echo "$0 [-b|--bash|-h|--help|-k|--kill|-p|--pull]"
+  echo "$0 [-b|--bash|-c|--clean|-h|--help|-k|--kill|-p|--pull]"
   echo ""
   echo "-b | --bash: start a bash terminal shell within the currently running container"
   echo "-h | --help: show this usage"
   echo "-k | --kill: stop the docker image"
   echo "-p | --pull: pull the docker image"
+  echo "-c | --clean: clean start with kill and purge of all data"
   exit 1
 }
 
@@ -112,7 +113,7 @@ zero() {
 # dgraph alpha
 #
 alpha() {
-  $docker exec $it dgraph dgraph alpha --lru_mb 2048 --zero localhost:5080 --whitelist 0.0.0.0/0
+  $docker exec $it dgraph dgraph alpha --lru_mb 4096 --zero localhost:5080 --whitelist 0.0.0.0/0
 }
 
 #
@@ -181,6 +182,16 @@ do
     alpha) alpha;;
     ratel) ratel;;
     zero) zero;;
+    -c|--clean)
+       stopImage
+       if [ -d ~/dgraph ]
+       then
+          color_msg $blue "removing content from ~/dgraph"
+          rm -rf ~/dgraph/*
+       fi
+       # call me with no parameters to start terminals
+       $me
+       ;;
     -p|--pull) pullImage;;
     -b|--bash) bashInto;;
     -k|--kill) stopImage;;

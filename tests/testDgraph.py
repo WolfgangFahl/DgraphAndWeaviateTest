@@ -19,6 +19,58 @@ class TestDgraph(unittest.TestCase):
 
     def tearDown(self):
         pass
+    
+    def testCities(self):
+        '''
+        test a list of cities
+        '''
+        cityJsonUrl="https://raw.githubusercontent.com/lutangar/cities.json/master/cities.json"
+        with urllib.request.urlopen(cityJsonUrl) as url:
+            cityList=json.loads(url.read().decode())
+        self.assertEqual(128769,(len(cityList)))
+        cityIter=iter(cityList)
+        limit=2000
+        for i in range(limit):
+            city=next(cityIter)
+            city['dgraph.type']='City'
+            lat=city['lat']
+            lng=city['lng']
+            #city['location']={'type': 'Point', 'coordinates': [lng,lat] }
+            #print("%d: %s" % (i,city))
+        dgraph=Dgraph(profile=True)
+        dgraph.drop_all()
+        schema='''
+name: string @index(exact) .
+country: string .   
+lat: float .
+lng: float .
+location: geo .
+type City {
+   name
+   country
+   lat
+   lng
+   location
+}'''
+        dgraph.addSchema(schema)
+        dgraph.addData(obj=cityList,limit=limit,batchSize=250)
+        query='''{ 
+  # get cities
+  cities(func: has(name)) {
+        country
+        name
+        lat
+        lng
+        location
+  }
+}
+        '''
+        queryResult=dgraph.query(query)
+        self.assertTrue('cities' in queryResult)
+        qCityList=queryResult['cities']
+        self.assertEqual(limit,qCityList)
+        dgraph.close()
+            
 
     def testCountries(self):
         ''' 
