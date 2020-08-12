@@ -39,7 +39,7 @@ class TestDgraph(unittest.TestCase):
         cityIter=iter(cityList)
         limit=len(cityList)
         if getpass.getuser()=="travis":
-            limit=10000
+            limit=4000
         for i in range(limit):
             city=next(cityIter)
             city['dgraph.type']='City'
