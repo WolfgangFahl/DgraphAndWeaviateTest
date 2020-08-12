@@ -37,7 +37,8 @@ class TestDgraph(unittest.TestCase):
             cityList=json.loads(url.read().decode())
         self.assertEqual(128769,(len(cityList)))
         cityIter=iter(cityList)
-        limit=len(cityList)
+        #limit=len(cityList)
+        limit=1000
         if getpass.getuser()=="travis":
             limit=4000
         for i in range(limit):
@@ -47,7 +48,6 @@ class TestDgraph(unittest.TestCase):
             lng=float(city['lng'])
             city['location']={'type': 'Point', 'coordinates': [lng,lat] }
             #print("%d: %s" % (i,city))
-        limit=None    
         dgraph=self.getDGraph()
         dgraph.drop_all()
         schema='''
