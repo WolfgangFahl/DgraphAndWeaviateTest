@@ -68,7 +68,7 @@ type City {
         queryResult=dgraph.query(query)
         self.assertTrue('cities' in queryResult)
         qCityList=queryResult['cities']
-        self.assertEqual(limit,qCityList)
+        self.assertEqual(limit,len(qCityList))
         dgraph.close()
             
 
