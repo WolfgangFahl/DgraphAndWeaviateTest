@@ -68,7 +68,7 @@ class TestRuruki(unittest.TestCase):
         r.graph.get_or_create_edge(jane, "READING", linux_command_line)
         r.graph.get_or_create_edge(jane, "READING", python_pocket_ref)
         personVertices=r.graph.get_vertices("person").all()
-        self.assertEqual(10,len(personVertices))
+        self.assertEqual(2,len(personVertices))
         pass
     
     def testSpeed(self):
