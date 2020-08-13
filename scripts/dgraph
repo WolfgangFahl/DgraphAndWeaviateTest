@@ -187,6 +187,7 @@ do
        if [ -d ~/dgraph ]
        then
           color_msg $blue "removing content from ~/dgraph"
+	  sudo chown -R $USER ~/dgraph/*
           rm -rf ~/dgraph/*
        fi
        # call me with no parameters to start terminals

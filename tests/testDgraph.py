@@ -18,7 +18,7 @@ class TestDgraph(unittest.TestCase):
     def setUp(self):
         self.host='localhost'
         if getpass.getuser()=="wf":
-            self.host='merkur'
+            self.host='venus'
         pass
 
     def tearDown(self):
@@ -105,7 +105,6 @@ type Country {
    capital
 }'''
         dgraph.addSchema(schema)
-        startTime=time.time()
         for country in countryList:
             # rename dictionary keys
             #country['name']=country.pop('Name')
@@ -115,8 +114,6 @@ type Country {
             country['location']={'type': 'Point', 'coordinates': [lng,lat] }
             print(country) 
         dgraph.addData(countryList)
-        elapsed=time.time() - startTime
-        print("adding %d countries took %5.1f s" % (len(countryList),elapsed)) 
         query='''{
 # list of countries
   countries(func: has(code)) {
