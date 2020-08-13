@@ -3,3 +3,5 @@
 pydgraph
 # https://www.semi.technology/documentation/weaviate/current/client-libs/python.html
 weaviate-client>=0.4.1
+# https://pypi.org/project/ruruki
+ruruki
