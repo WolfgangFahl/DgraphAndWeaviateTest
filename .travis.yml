@@ -29,7 +29,7 @@ script:
   - scripts/dgraph
   # pull and run weaviate
   - scripts/weaviate
-  # install apache jena and load example data
+# install apache jena and load example data
   - scripts/jena -l sampledata/example.ttl
   # run apache jena fuseki server
   - scripts/jena -f example

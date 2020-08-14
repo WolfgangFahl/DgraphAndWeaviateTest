@@ -141,7 +141,8 @@ startFuseki() {
   cd $libPath/$fuseki
   log=$dataPath/fuseki.log
   nohup java -jar $libPath/$fuseki/fuseki-server.jar --tdb2 --loc=$dataPath /$l_dataset >$log 2>&1 &
-  tail -f $log
+  sleep 2
+  tail $log
 }
 
 # commandline option
