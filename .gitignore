@@ -133,3 +133,6 @@ dmypy.json
 scripts/alpha
 scripts/zero
 scripts/ratel
+# lib and data directories for apache jena
+lib
+data

@@ -5,3 +5,10 @@ pydgraph
 weaviate-client>=0.4.1
 # https://pypi.org/project/ruruki
 ruruki
+# https://pypi.org/project/SPARQLWrapper/
+# 321 stars, 95 forks
+# https://github.com/RDFLib/sparqlwrapper
+# https://stackoverflow.com/questions/tagged/sparqlwrapper
+SPARQLWrapper
+# https://pypi.org/project/sparql-client/
+# 12 stars, 14 forks

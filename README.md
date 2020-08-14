@@ -1,5 +1,5 @@
 # DgraphAndWeaviateTest
-Test GraphQL based Dgraph and Weaviate systems
+Test GraphQL based Dgraph and Weaviate systems as well as ruruki and Apache Jena
 
 [![Travis (.org)](https://travis-ci.org/WolfgangFahl/DgraphAndWeaviateTest.svg?branch=master)](https://travis-ci.org/WolfgangFahl/DgraphAndWeaviateTest)
 [![GitHub issues](https://img.shields.io/github/issues/WolfgangFahl/DgraphAndWeaviateTest.svg)](https://github.com/WolfgangFahl/DgraphAndWeaviateTest/issues)
