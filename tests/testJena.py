@@ -18,17 +18,31 @@ class TestJena(unittest.TestCase):
     def tearDown(self):
         pass
 
+    def getJena(self,mode='query'):
+        endpoint="http://localhost:3030/example/%s" % mode
+        jena=Jena(endpoint)
+        return jena
 
-    def testJena(self):
+    def testJenaQuery(self):
         '''
         test Apache Jena Fuseki SPARQL endpoint with example data
         '''
-        endpoint="http://localhost:3030/example"
-        jena=Jena(endpoint)
+        jena=self.getJena()
         queryString = "SELECT * WHERE { ?s ?p ?o. }"
         results=jena.query(queryString)
         self.assertEqual(20,len(results))
         pass
+    
+    def testJenaInsert(self):
+        jena=self.getJena(mode="update")
+        insertString = """
+        PREFIX cr: <http://cr.bitplan.com/>
+        INSERT DATA { 
+          cr:version cr:author "Wolfgang Fahl". 
+        }
+        """
+        results=jena.rawQuery(insertString)
+        print (results)
     
     def testLocalWikdata(self):
         '''
