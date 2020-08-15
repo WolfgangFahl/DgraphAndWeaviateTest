@@ -9,7 +9,7 @@ from dg.jena import Jena
 
 
 class TestJena(unittest.TestCase):
-
+    ''' Test Apache Jena access '''
 
     def setUp(self):
         pass
@@ -30,7 +30,7 @@ class TestJena(unittest.TestCase):
         jena=self.getJena()
         queryString = "SELECT * WHERE { ?s ?p ?o. }"
         results=jena.query(queryString)
-        self.assertEqual(20,len(results))
+        self.assertTrue(len(results)>20)
         pass
     
     def testJenaInsert(self):
