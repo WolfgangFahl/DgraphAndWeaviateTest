@@ -74,7 +74,7 @@ class TestJena(unittest.TestCase):
         if sys.version_info >= (3, 7):
             dt=datetime.fromisoformat(isoDateString)
         else:
-            dt=datetime.datetime.strptime(isoDateString,"%y-%m-%d")  
+            dt=datetime.strptime(isoDateString,"%y-%m-%d")  
         return dt.date()    
             
     def testListOfDictInsert(self):
