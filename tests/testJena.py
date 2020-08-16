@@ -71,11 +71,17 @@ class TestJena(unittest.TestCase):
         
     def dob(self,isoDateString):
         ''' get the date of birth from the given iso date state'''
-        if sys.version_info >= (3, 7):
-            dt=datetime.fromisoformat(isoDateString)
-        else:
-            dt=datetime.strptime(isoDateString,"%y-%m-%d")  
+        #if sys.version_info >= (3, 7):
+        #    dt=datetime.fromisoformat(isoDateString)
+        #else:
+        dt=datetime.strptime(isoDateString,"%Y-%m-%d")  
         return dt.date()    
+    
+    def testDob(self):
+        dt=self.dob("1926-04-21")
+        self.assertEqual(1926,dt.year)
+        self.assertEqual(4,dt.month)
+        self.assertEqual(21,dt.day)
             
     def testListOfDictInsert(self):
         '''
