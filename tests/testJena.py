@@ -6,11 +6,9 @@ Created on 2020-08-14
 import unittest
 import getpass
 from dg.jena import Jena
-from SPARQLWrapper.Wrapper import SPARQLWrapper
-
 
 class TestJena(unittest.TestCase):
-    ''' Test Apache Jena access '''
+    ''' Test Apache Jena access via Wrapper'''
 
     def setUp(self):
         pass
@@ -19,14 +17,17 @@ class TestJena(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def getJena(self,mode='query'):
+    def getJena(self,mode='query',debug=False):
+        '''
+        get the jena endpoint for the given mode
+        '''
         endpoint="http://localhost:3030/example"
-        jena=Jena(endpoint,mode=mode)
+        jena=Jena(endpoint,mode=mode,debug=debug)
         return jena
 
     def testJenaQuery(self):
         '''
-        test Apache Jena Fuseki SPARQL endpoint with example data
+        test Apache Jena Fuseki SPARQL endpoint with example SELECT query 
         '''
         jena=self.getJena()
         queryString = "SELECT * WHERE { ?s ?p ?o. }"
@@ -35,6 +36,9 @@ class TestJena(unittest.TestCase):
         pass
     
     def testJenaInsert(self):
+        '''
+        test a Jena INSERT DATA
+        '''
         jena=self.getJena(mode="update")
         insertCommands = [ """
         PREFIX cr: <http://cr.bitplan.com/>
@@ -53,6 +57,19 @@ class TestJena(unittest.TestCase):
                 self.assertTrue("QueryBadFormed" in msg)
                 self.assertTrue("Error 400" in msg)
                 pass
+            
+    def testListOfDictInsert(self):
+        '''
+        test inserting a list of Dicts using FOAF example
+        https://en.wikipedia.org/wiki/FOAF_(ontology)
+        '''
+        listofDicts=[
+            {'name': 'Elizabeth Alexandra Mary Windsor', 'born': '1926-04-21', 'age': 94, 'ofAge': True , 'wikidataurl': 'https://www.wikidata.org/wiki/Q9682' },
+            {'name': 'George of Cambridge',              'born': '2013-07-22', 'age':  7, 'ofAge': False, 'wikidataurl': 'https://www.wikidata.org/wiki/Q1359041'},
+            {'name': 'Harry Duke of Sussex',             'born': '1984-09-15', 'age': 36, 'ofAge': True , 'wikidataurl': 'https://www.wikidata.org/wiki/Q152316'}
+        ]
+        jena=self.getJena(mode='update',debug=True)
+        jena.insertListOfDicts(listofDicts,'foaf:Person','name','@prefix foaf: <http://xmlns.com/foaf/0.1/>')
         
     
     def testLocalWikdata(self):
