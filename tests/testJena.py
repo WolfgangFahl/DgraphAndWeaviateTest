@@ -6,6 +6,7 @@ Created on 2020-08-14
 import unittest
 import getpass
 from dg.jena import Jena
+import time
 
 class TestJena(unittest.TestCase):
     ''' Test Apache Jena access via Wrapper'''
@@ -58,6 +59,13 @@ class TestJena(unittest.TestCase):
                 self.assertTrue("Error 400" in msg)
                 pass
             
+    def checkErrors(self,errors):      
+        if len(errors)>0:
+            print("ERRORS:")
+            for error in errors:
+                print(error)
+        self.assertEquals(0,len(errors))    
+            
     def testListOfDictInsert(self):
         '''
         test inserting a list of Dicts using FOAF example
@@ -70,10 +78,26 @@ class TestJena(unittest.TestCase):
         ]
         jena=self.getJena(mode='update',debug=True)
         errors=jena.insertListOfDicts(listofDicts,'foaf:Person','name','PREFIX foaf: <http://xmlns.com/foaf/0.1/>')
-        if len(errors)>0:
-            for error in errors:
-                print(error)
-        self.assertEquals(0,len(errors))        
+        self.checkErrors(errors)
+             
+        
+    def testListOfDictSpeed(self):
+        '''
+        test the speed of adding data
+        ''' 
+        listOfDicts=[]
+        limit=1000
+        for index in range(limit):
+            listOfDicts.append({'pkey': "index%d" %index, 'index': "%d" %index})
+        jena=self.getJena(mode='update',debug=True)
+        entityType="ex:TestRecord"
+        primaryKey='pkey'
+        prefixes='PREFIX ex: <http://example.com/>'
+        startTime=time.time()
+        errors=jena.insertListOfDicts(listOfDicts, entityType, primaryKey, prefixes)   
+        self.checkErrors(errors)
+        elapsed=time.time()-startTime
+        print ("adding %d records took %5.3f s => %5.f records/s" % (limit,elapsed,limit/elapsed))
     
     def testLocalWikdata(self):
         '''
