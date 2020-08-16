@@ -42,6 +42,9 @@ class Jena(object):
         '''
         self.sparql.setRequestMethod(POSTDIRECTLY)
         response=self.rawQuery(insertCommand, method=POST)
+        #see https://github.com/RDFLib/sparqlwrapper/issues/159#issuecomment-674523696
+        # dummy read the body
+        response.response.read()
         return response
     
     def getLocalName(self,name):
