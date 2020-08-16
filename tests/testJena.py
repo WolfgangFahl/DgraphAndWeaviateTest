@@ -69,8 +69,11 @@ class TestJena(unittest.TestCase):
             {'name': 'Harry Duke of Sussex',             'born': '1984-09-15', 'age': 36, 'ofAge': True , 'wikidataurl': 'https://www.wikidata.org/wiki/Q152316'}
         ]
         jena=self.getJena(mode='update',debug=True)
-        jena.insertListOfDicts(listofDicts,'foaf:Person','name','PREFIX foaf: <http://xmlns.com/foaf/0.1/>')
-        
+        errors=jena.insertListOfDicts(listofDicts,'foaf:Person','name','PREFIX foaf: <http://xmlns.com/foaf/0.1/>')
+        if len(errors)>0:
+            for error in errors:
+                print(error)
+        self.assertEquals(0,len(errors))        
     
     def testLocalWikdata(self):
         '''

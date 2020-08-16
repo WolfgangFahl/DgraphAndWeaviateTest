@@ -77,7 +77,7 @@ class Jena(object):
             else:    
                 primaryValue=record[primaryKey]
                 encodedPrimaryValue=self.getLocalName(primaryValue)
-                tSubject="<#%s>" %(encodedPrimaryValue)
+                tSubject="<%s#%s>" %(entityType,encodedPrimaryValue)
                 for keyValue in record.items():
                     key,value=keyValue
                     valueType=type(value)
@@ -86,7 +86,16 @@ class Jena(object):
                     tPredicate="%s_%s" % (entityType,key)
                     tObject=value    
                     if valueType == str:   
-                        insertCommand+='  %s %s "%s".\n' % (tSubject,tPredicate,tObject)
+                        tObject='"%s"' % value
+                    elif valueType==int:
+                        pass
+                    elif valueType==bool:
+                        pass
+                    else:
+                        errors.append("can't handle type %s in record %d" % (valueType,index))
+                        tObject=None
+                    if tObject is not None:    
+                        insertCommand+='  %s %s %s.\n' % (tSubject,tPredicate,tObject)
         insertCommand+="\n}"
         if self.debug:
             print (insertCommand)
