@@ -7,6 +7,7 @@ import unittest
 import getpass
 from dg.jena import Jena
 import time
+from datetime import datetime,date
 
 class TestJena(unittest.TestCase):
     ''' Test Apache Jena access via Wrapper'''
@@ -65,6 +66,12 @@ class TestJena(unittest.TestCase):
             for error in errors:
                 print(error)
         self.assertEquals(0,len(errors))    
+        
+        
+    def dob(self,isoDateString):
+        ''' get the date of birth from the given iso date state'''
+        dt=datetime.fromisoformat(isoDateString)
+        return dt.date()    
             
     def testListOfDictInsert(self):
         '''
@@ -72,10 +79,18 @@ class TestJena(unittest.TestCase):
         https://en.wikipedia.org/wiki/FOAF_(ontology)
         '''
         listofDicts=[
-            {'name': 'Elizabeth Alexandra Mary Windsor', 'born': '1926-04-21', 'age': 94, 'ofAge': True , 'wikidataurl': 'https://www.wikidata.org/wiki/Q9682' },
-            {'name': 'George of Cambridge',              'born': '2013-07-22', 'age':  7, 'ofAge': False, 'wikidataurl': 'https://www.wikidata.org/wiki/Q1359041'},
-            {'name': 'Harry Duke of Sussex',             'born': '1984-09-15', 'age': 36, 'ofAge': True , 'wikidataurl': 'https://www.wikidata.org/wiki/Q152316'}
+            {'name': 'Elizabeth Alexandra Mary Windsor', 'born': self.dob('1926-04-21'), 'numberInLine': 0, 'wikidataurl': 'https://www.wikidata.org/wiki/Q9682' },
+            {'name': 'Charles, Prince of Wales',         'born': self.dob('1948-11-14'), 'numberInLine': 1, 'wikidataurl': 'https://www.wikidata.org/wiki/Q43274' },
+            {'name': 'George of Cambridge',              'born': self.dob('2013-07-22'), 'numberInLine': 3, 'wikidataurl': 'https://www.wikidata.org/wiki/Q1359041'},
+            {'name': 'Harry Duke of Sussex',             'born': self.dob('1984-09-15'), 'numberInLine': 5, 'wikidataurl': 'https://www.wikidata.org/wiki/Q152316'}
         ]
+        today=date.today()
+        for person in listofDicts:
+            born=person['born']
+            age=(today - born).days / 365.2425
+            person['age']=age
+            person['ofAge']=age>=18
+            
         jena=self.getJena(mode='update',debug=True)
         errors=jena.insertListOfDicts(listofDicts,'foaf:Person','name','PREFIX foaf: <http://xmlns.com/foaf/0.1/>')
         self.checkErrors(errors)

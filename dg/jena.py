@@ -5,7 +5,7 @@ Created on 2020-08-14
 '''
 from SPARQLWrapper import SPARQLWrapper, JSON
 from SPARQLWrapper.Wrapper import POSTDIRECTLY, POST
-import urllib.parse
+import datetime
 
 class Jena(object):
     '''
@@ -88,9 +88,14 @@ class Jena(object):
                     if valueType == str:   
                         tObject='"%s"' % value
                     elif valueType==int:
+                        #tObject='"%d"^^xsd:integer' %value
+                        pass
+                    elif valueType==float:
                         pass
                     elif valueType==bool:
                         pass
+                    elif valueType==datetime.date:
+                        tObject='"%s"' % value
                     else:
                         errors.append("can't handle type %s in record %d" % (valueType,index))
                         tObject=None
