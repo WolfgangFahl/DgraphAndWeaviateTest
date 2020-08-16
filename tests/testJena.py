@@ -6,6 +6,7 @@ Created on 2020-08-14
 import unittest
 import getpass
 from dg.jena import Jena
+from SPARQLWrapper.Wrapper import SPARQLWrapper
 
 
 class TestJena(unittest.TestCase):
@@ -19,8 +20,8 @@ class TestJena(unittest.TestCase):
         pass
 
     def getJena(self,mode='query'):
-        endpoint="http://localhost:3030/example/%s" % mode
-        jena=Jena(endpoint)
+        endpoint="http://localhost:3030/example"
+        jena=Jena(endpoint,mode=mode)
         return jena
 
     def testJenaQuery(self):
@@ -35,14 +36,24 @@ class TestJena(unittest.TestCase):
     
     def testJenaInsert(self):
         jena=self.getJena(mode="update")
-        insertString = """
+        insertCommands = [ """
         PREFIX cr: <http://cr.bitplan.com/>
         INSERT DATA { 
           cr:version cr:author "Wolfgang Fahl". 
         }
-        """
-        results=jena.rawQuery(insertString)
-        print (results)
+        """,'INVALID COMMAND']
+        for index,insertCommand in enumerate(insertCommands):
+            try:
+                result=jena.insert(insertCommand)
+                self.assertTrue(index==0)
+                print(result)
+            except Exception as ex:
+                self.assertTrue(index==1)
+                msg=ex.args[0]
+                self.assertTrue("QueryBadFormed" in msg)
+                self.assertTrue("Error 400" in msg)
+                pass
+        
     
     def testLocalWikdata(self):
         '''
