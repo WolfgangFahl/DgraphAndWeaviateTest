@@ -44,6 +44,14 @@ class Jena(object):
         response=self.rawQuery(insertCommand, method=POST)
         return response
     
+    def getLocalName(self,name):
+        '''
+        retrieve valid localname from a string based primary key
+        https://www.w3.org/TR/sparql11-query/#prefNames
+        '''
+        localName=''.join(ch for ch in name if ch.isalnum())
+        return localName
+    
     def insertListOfDicts(self,listOfDicts,entityType,primaryKey,prefixes):
         '''
         insert the given list of dicts mapping datatypes according to
@@ -65,14 +73,14 @@ class Jena(object):
                 errors.append["missing primary key %s in record %d",index]
             else:    
                 primaryValue=record[primaryKey]
-                encodedPrimaryValue=urllib.parse.quote_plus(primaryValue)
-                tSubject="%s/%s" %(entityType,encodedPrimaryValue)
+                encodedPrimaryValue=self.getLocalName(primaryValue)
+                tSubject="<#%s>" %(encodedPrimaryValue)
                 for keyValue in record.items():
                     key,value=keyValue
                     valueType=type(value)
                     if self.debug:
                         print("%s(%s)=%s" % (key,valueType,value))
-                    tPredicate="%s#%s" % (entityType,key)
+                    tPredicate="%s_%s" % (entityType,key)
                     tObject=value    
                     if valueType == str:   
                         insertCommand+='  %s %s "%s".\n' % (tSubject,tPredicate,tObject)
