@@ -7,6 +7,7 @@ import unittest
 import getpass
 from dg.jena import Jena
 import time
+import sys
 from datetime import datetime,date
 
 class TestJena(unittest.TestCase):
@@ -70,7 +71,10 @@ class TestJena(unittest.TestCase):
         
     def dob(self,isoDateString):
         ''' get the date of birth from the given iso date state'''
-        dt=datetime.fromisoformat(isoDateString)
+        if sys.version_info >= (3, 7):
+            dt=datetime.fromisoformat(isoDateString)
+        else:
+            dt=datetime.datetime.strptime(isoDateString,"%y-%m-%d")  
         return dt.date()    
             
     def testListOfDictInsert(self):

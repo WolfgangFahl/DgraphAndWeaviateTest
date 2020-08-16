@@ -4,7 +4,7 @@ language: python
 # python versions to be tested
 python:
 #  - "2.7" # see https://github.com/WolfgangFahl/gremlin-python-tutorial/issues/7
-#  - "3.6" # https://docs.python.org/3/library/datetime.html#datetime.datetime.fromisoformat is missing
+  - "3.6"  # but https://docs.python.org/3/library/datetime.html#datetime.datetime.fromisoformat is missing
   - "3.7"
   - "3.8"
 services:
