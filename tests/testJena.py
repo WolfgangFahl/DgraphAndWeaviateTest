@@ -19,12 +19,12 @@ class TestJena(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def getJena(self,mode='query',debug=False):
+    def getJena(self,mode='query',debug=False,typedLiterals=False):
         '''
         get the jena endpoint for the given mode
         '''
         endpoint="http://localhost:3030/example"
-        jena=Jena(endpoint,mode=mode,debug=debug)
+        jena=Jena(endpoint,mode=mode,debug=debug,typedLiterals=typedLiterals)
         return jena
 
     def testJenaQuery(self):
@@ -90,10 +90,11 @@ class TestJena(unittest.TestCase):
             age=(today - born).days / 365.2425
             person['age']=age
             person['ofAge']=age>=18
-            
-        jena=self.getJena(mode='update',debug=True)
-        errors=jena.insertListOfDicts(listofDicts,'foaf:Person','name','PREFIX foaf: <http://xmlns.com/foaf/0.1/>')
-        self.checkErrors(errors)
+        typedLiteralModes=[True,False]
+        for typedLiteralMode in typedLiteralModes:
+            jena=self.getJena(mode='update',typedLiterals=typedLiteralMode,debug=True)
+            errors=jena.insertListOfDicts(listofDicts,'foaf:Person','name','PREFIX foaf: <http://xmlns.com/foaf/0.1/>')
+            self.checkErrors(errors)
              
         
     def testListOfDictSpeed(self):

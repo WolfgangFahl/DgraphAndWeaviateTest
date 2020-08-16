@@ -12,13 +12,14 @@ class Jena(object):
     wrapper for apache Jana
     '''
 
-    def __init__(self,url,mode='query',returnFormat=JSON, debug=False):
+    def __init__(self,url,mode='query',returnFormat=JSON, debug=False, typedLiterals=False):
         '''
         Constructor
         '''
         self.url="url%s" % (mode)
         self.mode=mode
         self.debug=debug
+        self.typedLiterals=typedLiterals
         self.sparql=SPARQLWrapper(url,returnFormat=returnFormat)
         
     def rawQuery(self,queryString,method='POST'):
@@ -88,14 +89,19 @@ class Jena(object):
                     if valueType == str:   
                         tObject='"%s"' % value
                     elif valueType==int:
-                        #tObject='"%d"^^xsd:integer' %value
+                        if self.typedLiterals:
+                            tObject='"%d"^^<http://www.w3.org/2001/XMLSchema#int>' %value
                         pass
                     elif valueType==float:
+                        if self.typedLiterals:
+                            tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#double>' %value
                         pass
                     elif valueType==bool:
                         pass
                     elif valueType==datetime.date:
-                        tObject='"%s"' % value
+                        #if self.typedLiterals:
+                        tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#date>' %value
+                        pass
                     else:
                         errors.append("can't handle type %s in record %d" % (valueType,index))
                         tObject=None
