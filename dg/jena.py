@@ -78,7 +78,7 @@ class Jena(object):
             else:    
                 primaryValue=record[primaryKey]
                 encodedPrimaryValue=self.getLocalName(primaryValue)
-                tSubject="<%s#%s>" %(entityType,encodedPrimaryValue)
+                tSubject="%s_%s" %(entityType,encodedPrimaryValue)
                 for keyValue in record.items():
                     key,value=keyValue
                     valueType=type(value)
