@@ -85,10 +85,12 @@ class TestJena(unittest.TestCase):
             
     def testListOfDictInsert(self):
         '''
-        test inserting a list of Dicts using FOAF example
+        test inserting a list of Dicts and retrieving the values again
+        using a person based example
+        instead of
         https://en.wikipedia.org/wiki/FOAF_(ontology)
         
-        we use an object oriented derivate of FOAF 
+        we use an object oriented derivate of FOAF with a focus on datatypes
         '''
         listofDicts=[
             {'name': 'Elizabeth Alexandra Mary Windsor', 'born': self.dob('1926-04-21'), 'numberInLine': 0, 'wikidataurl': 'https://www.wikidata.org/wiki/Q9682' },
@@ -110,6 +112,25 @@ class TestJena(unittest.TestCase):
             jena=self.getJena(mode='update',typedLiterals=typedLiteralMode,debug=True)
             errors=jena.insertListOfDicts(listofDicts,entityType,primaryKey,prefixes)
             self.checkErrors(errors)
+            
+        jena=self.getJena(mode="query")    
+        queryString = """
+        PREFIX foafo: <http://foafo.bitplan.com/foafo/0.1/>
+        SELECT ?name ?born ?numberInLine ?wikidataurl ?ofAge ?age WHERE { 
+            ?person foafo:Person_name ?name.
+            ?person foafo:Person_born ?born.
+            ?person foafo:Person_numberInLine ?numberInLine.
+            ?person foafo:Person_wikidataurl ?wikidataurl.
+            ?person foafo:Person_ofAge ?ofAge.
+            ?person foafo:Person_age ?age. 
+        }"""
+        personResults=jena.query(queryString)
+        self.assertEqual(len(listofDicts),len(personResults))
+        personList=jena.asListOfDicts(personResults)   
+        for index,person in enumerate(personList):
+            print("%d: %s" %(index,person))
+        # check the correct round-trip behavior
+        self.assertEqual(listofDicts,personList)
              
         
     def testListOfDictSpeed(self):
@@ -145,7 +166,7 @@ WHERE
 {
   # instance of whisky distillery
   ?item wdt:P31 wd:Q10373548.
-  # get the coordindate
+  # get the coordinate
   ?item wdt:P625 ?coord.
 }"""
             results=jena.query(queryString)

@@ -90,11 +90,11 @@ class Jena(object):
                         tObject='"%s"' % value
                     elif valueType==int:
                         if self.typedLiterals:
-                            tObject='"%d"^^<http://www.w3.org/2001/XMLSchema#int>' %value
+                            tObject='"%d"^^<http://www.w3.org/2001/XMLSchema#integer>' %value
                         pass
                     elif valueType==float:
                         if self.typedLiterals:
-                            tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#double>' %value
+                            tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#decimal>' %value
                         pass
                     elif valueType==bool:
                         pass
@@ -120,3 +120,29 @@ class Jena(object):
         queryResult=self.rawQuery(queryString,method=method) 
         jsonResult=queryResult.convert()
         return self.getResults(jsonResult)
+    
+    def asListOfDicts(self,records):
+        '''
+        convert SPARQL result back to python native
+        '''
+        resultList=[]
+        for record in records:
+            resultDict={}
+            for keyValue in record.items():
+                key,value=keyValue
+                datatype=value.datatype
+                if datatype is not None:
+                    if datatype=="http://www.w3.org/2001/XMLSchema#integer":
+                        resultValue=int(value.value) 
+                    elif datatype=="http://www.w3.org/2001/XMLSchema#decimal":
+                        resultValue=float(value.value)     
+                    elif datatype=="http://www.w3.org/2001/XMLSchema#boolean":
+                        resultValue=value.value in ['TRUE','true']    
+                    elif datatype=="http://www.w3.org/2001/XMLSchema#date":
+                        dt=datetime.datetime.strptime(value.value,"%Y-%m-%d")  
+                        resultValue=dt.date()    
+                else:
+                    resultValue=value.value  
+                resultDict[key]=resultValue
+            resultList.append(resultDict)
+        return resultList
