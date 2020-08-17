@@ -74,7 +74,7 @@ class Jena(object):
         insertCommand='%s\nINSERT DATA {\n' % prefixes
         for index,record in enumerate(listOfDicts):
             if not primaryKey in record:
-                errors.append["missing primary key %s in record %d",index]
+                errors.append("missing primary key %s in record %d" % (primaryKey,index))
             else:    
                 primaryValue=record[primaryKey]
                 encodedPrimaryValue=self.getLocalName(primaryValue)
@@ -105,8 +105,9 @@ class Jena(object):
                     else:
                         errors.append("can't handle type %s in record %d" % (valueType,index))
                         tObject=None
-                    if tObject is not None:    
-                        insertCommand+='  %s %s %s.\n' % (tSubject,tPredicate,tObject)
+                    if tObject is not None:   
+                        insertRecord='  %s %s %s.\n' % (tSubject,tPredicate,tObject)
+                        insertCommand+=insertRecord
         insertCommand+="\n}"
         if self.debug:
             print (insertCommand)

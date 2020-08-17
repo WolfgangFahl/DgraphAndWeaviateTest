@@ -66,8 +66,7 @@ class TestJena(unittest.TestCase):
             print("ERRORS:")
             for error in errors:
                 print(error)
-        self.assertEquals(0,len(errors))    
-        
+        self.assertEquals(0,len(errors))
         
     def dob(self,isoDateString):
         ''' get the date of birth from the given iso date state'''
