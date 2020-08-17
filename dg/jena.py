@@ -3,7 +3,7 @@ Created on 2020-08-14
 
 @author: wf
 '''
-from SPARQLWrapper import SPARQLWrapper, JSON
+from SPARQLWrapper import SPARQLWrapper2, JSON
 from SPARQLWrapper.Wrapper import POSTDIRECTLY, POST
 import datetime
 
@@ -20,7 +20,7 @@ class Jena(object):
         self.mode=mode
         self.debug=debug
         self.typedLiterals=typedLiterals
-        self.sparql=SPARQLWrapper(url,returnFormat=returnFormat)
+        self.sparql=SPARQLWrapper2(url)
         
     def rawQuery(self,queryString,method='POST'):
         '''
@@ -35,7 +35,7 @@ class Jena(object):
         '''
         get the result from the given jsonResult
         '''
-        return jsonResult["results"]["bindings"]
+        return jsonResult.bindings
     
     def insert(self,insertCommand):
         '''

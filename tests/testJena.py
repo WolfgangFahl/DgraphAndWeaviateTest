@@ -7,13 +7,13 @@ import unittest
 import getpass
 from dg.jena import Jena
 import time
-import sys
 from datetime import datetime,date
 
 class TestJena(unittest.TestCase):
     ''' Test Apache Jena access via Wrapper'''
 
     def setUp(self):
+        self.debug=False
         pass
 
 
@@ -87,6 +87,8 @@ class TestJena(unittest.TestCase):
         '''
         test inserting a list of Dicts using FOAF example
         https://en.wikipedia.org/wiki/FOAF_(ontology)
+        
+        we use an object oriented derivate of FOAF 
         '''
         listofDicts=[
             {'name': 'Elizabeth Alexandra Mary Windsor', 'born': self.dob('1926-04-21'), 'numberInLine': 0, 'wikidataurl': 'https://www.wikidata.org/wiki/Q9682' },
@@ -101,9 +103,12 @@ class TestJena(unittest.TestCase):
             person['age']=age
             person['ofAge']=age>=18
         typedLiteralModes=[True,False]
+        entityType='foafo:Person'
+        primaryKey='name'
+        prefixes='PREFIX foafo: <http://foafo.bitplan.com/foafo/0.1/>'
         for typedLiteralMode in typedLiteralModes:
             jena=self.getJena(mode='update',typedLiterals=typedLiteralMode,debug=True)
-            errors=jena.insertListOfDicts(listofDicts,'foaf:Person','name','PREFIX foaf: <http://xmlns.com/foaf/0.1/>')
+            errors=jena.insertListOfDicts(listofDicts,entityType,primaryKey,prefixes)
             self.checkErrors(errors)
              
         
