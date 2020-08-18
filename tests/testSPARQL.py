@@ -20,12 +20,12 @@ class TestSPARQL(unittest.TestCase):
     def tearDown(self):
         pass
 
-    def getJena(self,mode='query',debug=False,typedLiterals=False):
+    def getJena(self,mode='query',debug=False,typedLiterals=False,profile=False):
         '''
         get the jena endpoint for the given mode
         '''
         endpoint="http://localhost:3030/example"
-        jena=SPARQL(endpoint,mode=mode,debug=debug,typedLiterals=typedLiterals)
+        jena=SPARQL(endpoint,mode=mode,debug=debug,typedLiterals=typedLiterals,profile=profile)
         return jena
 
     def testJenaQuery(self):
@@ -131,25 +131,29 @@ class TestSPARQL(unittest.TestCase):
         # check the correct round-trip behavior
         self.assertEqual(listofDicts,personList)
              
-        
+    def getSample(self,size):         
+        listOfDicts=[]
+        for index in range(size):
+            listOfDicts.append({'pkey': "index%d" %index, 'index': "%d" %index})
+        return listOfDicts
+   
     def testListOfDictSpeed(self):
         '''
         test the speed of adding data
         ''' 
-        listOfDicts=[]
-        limit=2500
-        for index in range(limit):
-            listOfDicts.append({'pkey': "index%d" %index, 'index': "%d" %index})
-        jena=self.getJena(mode='update',debug=True)
-        entityType="ex:TestRecord"
-        primaryKey='pkey'
-        prefixes='PREFIX ex: <http://example.com/>'
-        startTime=time.time()
-        errors=jena.insertListOfDicts(listOfDicts, entityType, primaryKey, prefixes)   
-        self.checkErrors(errors)
-        elapsed=time.time()-startTime
-        print ("adding %d records took %5.3f s => %5.f records/s" % (limit,elapsed,limit/elapsed))
-    
+        limit=5000
+        for batchSize in [None,1000]:
+            listOfDicts=self.getSample(limit)
+            jena=self.getJena(mode='update',profile=True)
+            entityType="ex:TestRecord"
+            primaryKey='pkey'
+            prefixes='PREFIX ex: <http://example.com/>'
+            startTime=time.time()
+            errors=jena.insertListOfDicts(listOfDicts, entityType, primaryKey, prefixes,batchSize=batchSize)   
+            self.checkErrors(errors)
+            elapsed=time.time()-startTime
+            print ("adding %d records took %5.3f s => %5.f records/s" % (limit,elapsed,limit/elapsed))
+        
     def testLocalWikdata(self):
         '''
         check local wikidata
