@@ -5,11 +5,11 @@ Created on 2020-08-14
 '''
 import unittest
 import getpass
-from dg.jena import Jena
+from storage.sparql import SPARQL
 import time
 from datetime import datetime,date
 
-class TestJena(unittest.TestCase):
+class TestSPARQL(unittest.TestCase):
     ''' Test Apache Jena access via Wrapper'''
 
     def setUp(self):
@@ -25,7 +25,7 @@ class TestJena(unittest.TestCase):
         get the jena endpoint for the given mode
         '''
         endpoint="http://localhost:3030/example"
-        jena=Jena(endpoint,mode=mode,debug=debug,typedLiterals=typedLiterals)
+        jena=SPARQL(endpoint,mode=mode,debug=debug,typedLiterals=typedLiterals)
         return jena
 
     def testJenaQuery(self):
@@ -137,7 +137,7 @@ class TestJena(unittest.TestCase):
         test the speed of adding data
         ''' 
         listOfDicts=[]
-        limit=1000
+        limit=2500
         for index in range(limit):
             listOfDicts.append({'pkey': "index%d" %index, 'index': "%d" %index})
         jena=self.getJena(mode='update',debug=True)
@@ -158,7 +158,7 @@ class TestJena(unittest.TestCase):
         if getpass.getuser()=="wf":
             # use 2018 wikidata copy
             endpoint="http://blazegraph.bitplan.com/sparql"
-            jena=Jena(endpoint)
+            wd=SPARQL(endpoint)
             queryString="""
             SELECT ?item ?coord 
 WHERE 
@@ -168,7 +168,7 @@ WHERE
   # get the coordinate
   ?item wdt:P625 ?coord.
 }"""
-            results=jena.query(queryString)
+            results=wd.query(queryString)
             self.assertEqual(238,len(results))
 
 

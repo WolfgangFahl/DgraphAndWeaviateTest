@@ -5,7 +5,7 @@ Created on 05.08.2020
 '''
 import datetime
 import json
-from dg.dgraph import Dgraph
+from storage.dgraph import Dgraph
 
 class Simple(Dgraph):
     '''

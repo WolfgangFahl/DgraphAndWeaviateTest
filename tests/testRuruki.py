@@ -5,8 +5,7 @@ Created on 2020-08-13
 '''
 import unittest
 import time
-from dg.ruruki import Ruruki
-
+from storage.ruruki import Ruruki
 
 class TestRuruki(unittest.TestCase):
     '''

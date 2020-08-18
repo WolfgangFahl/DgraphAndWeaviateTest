@@ -4,11 +4,10 @@ Created on 2020-07-23
 @author: wf
 '''
 import unittest
-from dg.simple import Simple
-from dg.dgraph import Dgraph
+from storage.simple import Simple
+from storage.dgraph import Dgraph
 import urllib.request
 import json
-import time
 import getpass
 
 class TestDgraph(unittest.TestCase):
