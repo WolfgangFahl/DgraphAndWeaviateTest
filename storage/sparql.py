@@ -170,7 +170,7 @@ class SPARQL(object):
             else:    
                 primaryValue=record[primaryKey]
                 encodedPrimaryValue=self.getLocalName(primaryValue)
-                tSubject="%s_%s" %(entityType,encodedPrimaryValue)
+                tSubject="%s__%s" %(entityType,encodedPrimaryValue)
                 for keyValue in record.items():
                     key,value=keyValue
                     valueType=type(value)
@@ -179,7 +179,7 @@ class SPARQL(object):
                     tPredicate="%s_%s" % (entityType,key)
                     tObject=value    
                     if valueType == str:   
-                        tObject='"%s"' % value
+                        tObject='"%s"' % value.replace('"','\\"')
                     elif valueType==int:
                         if self.typedLiterals:
                             tObject='"%d"^^<http://www.w3.org/2001/XMLSchema#integer>' %value
@@ -222,6 +222,20 @@ class SPARQL(object):
         queryResult=self.rawQuery(queryString,method=method) 
         jsonResult=queryResult.convert()
         return self.getResults(jsonResult)
+    
+    def queryAsListOfDicts(self,queryString):
+        '''
+        get a list of dicts for the given query (to allow round-trip results for insertListOfDicts)
+        
+        Args:
+            queryString(string): the SPARQL query to execute
+            
+        Returns:
+            list: a list ofDicts
+        '''
+        records=self.query(queryString)
+        listOfDicts=self.asListOfDicts(records)
+        return listOfDicts
     
     def asListOfDicts(self,records):
         '''

@@ -95,7 +95,7 @@ class TestSPARQL(unittest.TestCase):
             {'name': 'Elizabeth Alexandra Mary Windsor', 'born': self.dob('1926-04-21'), 'numberInLine': 0, 'wikidataurl': 'https://www.wikidata.org/wiki/Q9682' },
             {'name': 'Charles, Prince of Wales',         'born': self.dob('1948-11-14'), 'numberInLine': 1, 'wikidataurl': 'https://www.wikidata.org/wiki/Q43274' },
             {'name': 'George of Cambridge',              'born': self.dob('2013-07-22'), 'numberInLine': 3, 'wikidataurl': 'https://www.wikidata.org/wiki/Q1359041'},
-            {'name': 'Harry Duke of Sussex',             'born': self.dob('1984-09-15'), 'numberInLine': 5, 'wikidataurl': 'https://www.wikidata.org/wiki/Q152316'}
+            {'name': 'Harry Duke of Sussex',             'born': self.dob('1984-09-15'), 'numberInLine': 6, 'wikidataurl': 'https://www.wikidata.org/wiki/Q152316'}
         ]
         today=date.today()
         for person in listofDicts:
@@ -130,6 +130,30 @@ class TestSPARQL(unittest.TestCase):
             print("%d: %s" %(index,person))
         # check the correct round-trip behavior
         self.assertEqual(listofDicts,personList)
+        
+    def testDoubleQuotedString(self):
+        '''
+        test handling of double quoted strings
+        '''
+        helpListOfDicts=[{'topic':'edit','description': 'Use the "edit" button'}]
+        entityType='help:Topic'
+        primaryKey='topic'
+        prefixes='PREFIX help: <http://help.bitplan.com/help/0.0.1/>'    
+        jena=self.getJena(mode='update',debug=True)
+        errors=jena.insertListOfDicts(helpListOfDicts, entityType, primaryKey, prefixes, profile=True)
+        self.checkErrors(errors)
+        query="""
+PREFIX help: <http://help.bitplan.com/help/0.0.1/>
+        SELECT ?topic ?description
+WHERE {
+  ?help help:Topic_topic ?topic.
+  ?help help:Topic_description ?description.
+}
+        """ 
+        jena=self.getJena(mode='query')
+        listOfDicts=jena.queryAsListOfDicts(query)
+        # check round trip equality
+        self.assertEqual(helpListOfDicts,listOfDicts)
              
     def getSample(self,size):         
         listOfDicts=[]
