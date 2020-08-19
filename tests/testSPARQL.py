@@ -131,11 +131,15 @@ class TestSPARQL(unittest.TestCase):
         # check the correct round-trip behavior
         self.assertEqual(listofDicts,personList)
         
-    def testDoubleQuotedString(self):
+    def testDoubleQuotedWithNewLinesString(self):
         '''
         test handling of double quoted strings
         '''
-        helpListOfDicts=[{'topic':'edit','description': 'Use the "edit" button'}]
+        helpListOfDicts=[{'topic':'edit','description': '''Use 
+the "edit" 
+button to start editing
+'''
+        }]
         entityType='help:Topic'
         primaryKey='topic'
         prefixes='PREFIX help: <http://help.bitplan.com/help/0.0.1/>'    

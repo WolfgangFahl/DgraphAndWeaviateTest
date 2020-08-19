@@ -184,7 +184,7 @@ class SPARQL(object):
                         tPredicate="%s_%s" % (entityType,key)
                         tObject=value    
                         if valueType == str:   
-                            tObject='"%s"' % value.replace('"','\\"')
+                            tObject='"%s"' % value.replace('"','\\"').replace('\n','\\n')
                         elif valueType==int:
                             if self.typedLiterals:
                                 tObject='"%d"^^<http://www.w3.org/2001/XMLSchema#integer>' %value
