@@ -8,6 +8,7 @@ import getpass
 from storage.sparql import SPARQL
 import time
 from datetime import datetime,date
+import re
 
 class TestSPARQL(unittest.TestCase):
     ''' Test Apache Jena access via Wrapper'''
@@ -131,13 +132,27 @@ class TestSPARQL(unittest.TestCase):
         # check the correct round-trip behavior
         self.assertEqual(listofDicts,personList)
         
-    def testDoubleQuotedWithNewLinesString(self):
+    def testControlEscape(self):
+        '''
+        check the control-escaped version of an UTF-8 string
+        '''
+        controls="Α\tΩ\r\n";
+        expected="Α\\tΩ\\r\\n"
+        esc=SPARQL.controlEscape(controls)
+        self.assertEqual(expected,esc)    
+        
+    def testEscapeStringContent(self):
         '''
         test handling of double quoted strings
         '''
         helpListOfDicts=[{'topic':'edit','description': '''Use 
 the "edit" 
-button to start editing
+button to start editing - you can use 
+- tab \t 
+- carriage return \r 
+- newline \n
+
+as escape characters 
 '''
         }]
         entityType='help:Topic'
