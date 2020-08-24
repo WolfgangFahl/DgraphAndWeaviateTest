@@ -6,9 +6,9 @@ Created on 2020-08-14
 import unittest
 import getpass
 from storage.sparql import SPARQL
+from storage.sample import Sample
 import time
 from datetime import datetime,date
-import re
 
 class TestSPARQL(unittest.TestCase):
     ''' Test Apache Jena access via Wrapper'''
@@ -173,12 +173,6 @@ WHERE {
         listOfDicts=jena.queryAsListOfDicts(query)
         # check round trip equality
         self.assertEqual(helpListOfDicts,listOfDicts)
-             
-    def getSample(self,size):         
-        listOfDicts=[]
-        for index in range(size):
-            listOfDicts.append({'pkey': "index%d" %index, 'index': "%d" %index})
-        return listOfDicts
    
     def testListOfDictSpeed(self):
         '''
@@ -186,7 +180,7 @@ WHERE {
         ''' 
         limit=5000
         for batchSize in [None,1000]:
-            listOfDicts=self.getSample(limit)
+            listOfDicts=Sample.getSample(limit)
             jena=self.getJena(mode='update',profile=True)
             entityType="ex:TestRecord"
             primaryKey='pkey'
