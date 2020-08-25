@@ -6,6 +6,7 @@ Created on 2020-08-24
 # python standard library
 import sqlite3
 import datetime
+import time
 
 class SQLDB(object):
     '''
@@ -105,6 +106,31 @@ class SQLDB(object):
         if fixDates:
             entityInfo.fixDates(resultList)
         return resultList
+    
+    def progress(self,status, remaining, total):
+        '''
+        show progress
+        '''
+        print('Backup %s at %5.0f%%' % ("... " if status==0 else "done",(total-remaining)/total*100)) 
+    
+    def backup(self,backupDB,profile=False,showProgress=10):
+        '''
+        create backup of this SQLDB to the given backup db
+        
+        see https://stackoverflow.com/a/59042442/1497139
+        '''
+        startTime=time.time()
+        bck=sqlite3.connect(backupDB)
+        if showProgress>0:
+            progress=self.progress
+        else:
+            progress=None
+        with bck:
+            self.c.backup(bck,pages=showProgress,progress=progress)
+        bck.close()    
+        elapsed=time.time()-startTime
+        if profile:
+            print("Backup to %s took %5.1f s" % (backupDB,elapsed))
         
 class EntityInfo(object):
     """
@@ -243,4 +269,6 @@ class EntityInfo(object):
             if self.debug:
                 print("%s(%s)=%s" % (key,str(valueType),strValue))
             valueList.append(strValue)
-        return valueList    
+        return valueList   
+    
+   
