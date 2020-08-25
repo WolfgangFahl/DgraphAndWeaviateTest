@@ -39,10 +39,23 @@ fixconf() {
       printf "author = %s%s%s\n",squote,author,squote
       next
     }
+    /html_theme = / {
+      # html_theme = 'alabaster'
+      printf "html_theme = %ssphinx_rtd_theme%s\n",squote,squote
+      next
+    }
+    # add sphinx_rtd extension
+    /extensions = / {
+      print $0
+      printf "\t%ssphinx_rtd_theme%s,\n",squote,squote
+      printf "\t%ssphinx.ext.napoleon%s,\n",squote,squote
+      next
+    }
     /# sys.path/ {
       print("#https://stackoverflow.com/a/44980548/1497139")
       print("import os")
       print("import sys")
+      print("import sphinx_rtd_theme")
       printf("basepath=os.path.abspath(%s../..%s)\n",squote,squote)
       printf("print(%sadding basepath %%s%s %% (basepath))\n",squote,squote)
       print("sys.path.insert(0, basepath)")
@@ -63,4 +76,4 @@ cd $src
 
 fixconf 2020 "Wolfgang Fahl"
 make clean html
-open build/html/index.html
+open _build/html/index.html

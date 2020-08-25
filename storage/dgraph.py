@@ -15,6 +15,12 @@ class Dgraph(object):
     def __init__(self, host='localhost',port=9080, debug=False,profile=False):
         '''
         Constructor
+        
+        Args:
+            host(string): the host for the dgraph connection
+            port(int): the port for the dgraph connection
+            debug(boolean): True if debug information should be shown
+            profile(boolean): True if profiling/timing information should be shown
         '''
         self.host=host
         self.port=port
@@ -108,6 +114,9 @@ class Dgraph(object):
     def query(self,graphQuery):
         '''
         do a query 
+        
+        Args:
+            graphQuery(string): The dgraph Query to execute
         '''
         response = self.client.txn(read_only=True).query(graphQuery)
         if self.debug:

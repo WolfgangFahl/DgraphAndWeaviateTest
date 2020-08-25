@@ -67,18 +67,10 @@ class TestSPARQL(unittest.TestCase):
             print("ERRORS:")
             for error in errors:
                 print(error)
-        self.assertEquals(0,len(errors))
-        
-    def dob(self,isoDateString):
-        ''' get the date of birth from the given iso date state'''
-        #if sys.version_info >= (3, 7):
-        #    dt=datetime.fromisoformat(isoDateString)
-        #else:
-        dt=datetime.strptime(isoDateString,"%Y-%m-%d")  
-        return dt.date()    
+        self.assertEquals(0,len(errors)) 
     
     def testDob(self):
-        dt=self.dob("1926-04-21")
+        dt=Sample.dob("1926-04-21")
         self.assertEqual(1926,dt.year)
         self.assertEqual(4,dt.month)
         self.assertEqual(21,dt.day)
@@ -92,18 +84,7 @@ class TestSPARQL(unittest.TestCase):
         
         we use an object oriented derivate of FOAF with a focus on datatypes
         '''
-        listofDicts=[
-            {'name': 'Elizabeth Alexandra Mary Windsor', 'born': self.dob('1926-04-21'), 'numberInLine': 0, 'wikidataurl': 'https://www.wikidata.org/wiki/Q9682' },
-            {'name': 'Charles, Prince of Wales',         'born': self.dob('1948-11-14'), 'numberInLine': 1, 'wikidataurl': 'https://www.wikidata.org/wiki/Q43274' },
-            {'name': 'George of Cambridge',              'born': self.dob('2013-07-22'), 'numberInLine': 3, 'wikidataurl': 'https://www.wikidata.org/wiki/Q1359041'},
-            {'name': 'Harry Duke of Sussex',             'born': self.dob('1984-09-15'), 'numberInLine': 6, 'wikidataurl': 'https://www.wikidata.org/wiki/Q152316'}
-        ]
-        today=date.today()
-        for person in listofDicts:
-            born=person['born']
-            age=(today - born).days / 365.2425
-            person['age']=age
-            person['ofAge']=age>=18
+        listofDicts=Sample.getRoyals()
         typedLiteralModes=[True,False]
         entityType='foafo:Person'
         primaryKey='name'

@@ -10,7 +10,6 @@ class Ruruki(object):
     wrapper for ruruki see https://ruruki.readthedocs.io/en/master/tutorial.html
     '''
 
-
     def __init__(self):
         '''
         Constructor

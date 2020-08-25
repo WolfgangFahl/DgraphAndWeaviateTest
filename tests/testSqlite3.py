@@ -4,47 +4,74 @@ Created on 2020-08-24
 @author: wf
 '''
 import unittest
-import sqlite3
 import time
 from storage.sample import Sample
+from storage.sql import SQLDB
 
-class TestSqlite3(unittest.TestCase):
-
+class TestSQLDB(unittest.TestCase):
+    '''
+    Test the SQLDB database wrapper
+    '''
 
     def setUp(self):
+        self.debug=True
         pass
 
 
     def tearDown(self):
         pass
-
-
-    def testSqllite3(self):
-        c = sqlite3.connect(':memory:')
+    
+    def checkListOfRecords(self,listOfRecords,entityName,primaryKey=None,debug=False):
+        '''
+        check the handling of the given list of Records
+        
+        Args:
+          
+           listOfRecords(list): a list of dicts that contain the data to be stored
+           entityName(string): the name of the entity type to be used as a table name
+           primaryKey(string): the name of the key / column to be used as a primary key
+           debug(boolean): True if debug information e.g. CREATE TABLE and INSERT INTO commands should be shown
+      
+        '''     
+        size=len(listOfRecords)
+        print("%s size is %d" % (entityName,size))
+        sqlDB=SQLDB(debug=debug)
+        entityInfo=sqlDB.createTable(listOfRecords,entityName,primaryKey)
         startTime=time.time()
-        limit=100000
-        listOfDicts=Sample.getSample(limit)
-        print("Sample size is %d" % len(listOfDicts))
-        c.execute("""CREATE TABLE sample(pkey text primary key, pindex integer)""")
+        sqlDB.store(listOfRecords,entityInfo)
         elapsed=time.time()-startTime
-        for record in listOfDicts:
-            cmd="""INSERT INTO sample(pkey, pindex)
-              values('%s', %d)""" % ( record["pkey"],record["index"])
-            #print(cmd)
-            c.execute(cmd)
-        print ("adding %d records took %5.3f s => %5.f records/s" % (limit,elapsed,limit/elapsed)) 
-        startTime=time.time()
-        sql = "SELECT * FROM sample"
-        recs = c.execute(sql)
-        resultList=[]
-        for row in recs:
-            result={}
-            result["pkey"]=row[0]
-            result["pindex"]=row[1]
-            resultList.append(result)
-        print ("selecting %d records took %5.3f s => %5.f records/s" % (len(resultList),elapsed,limit/elapsed)) 
-        pass
-
+        print ("adding %d %s records took %5.3f s => %5.f records/s" % (size,entityName,elapsed,size/elapsed)) 
+        resultList=sqlDB.queryAll(entityInfo.name)    
+        print ("selecting %d %s records took %5.3f s => %5.f records/s" % (len(resultList),entityName,elapsed,len(resultList)/elapsed)) 
+        sqlDB.close()
+        return resultList
+    
+    def testSqlite3(self):
+        '''
+        test sqlite3 with a few records from the royal family
+        '''
+        listOfRecords=Sample.getRoyals()
+        resultList=self.checkListOfRecords(listOfRecords, 'Person', 'name',debug=True)
+        if self.debug:
+            print(resultList)
+        #self.assertEquals(listOfRecords,resultList)
+        
+    def testListOfCities(self):
+        '''
+        test sqlite3 with some 120000 city records
+        '''
+        listOfRecords=Sample.getCities()
+        self.checkListOfRecords(listOfRecords,'City')
+        
+    def testSqllite3Speed(self):
+        '''
+        test sqlite3 speed with some 100000 artificial sample records
+        consisting of two columns with a running index
+        '''
+        limit=100000
+        listOfRecords=Sample.getSample(limit)
+        self.checkListOfRecords(listOfRecords, 'Sample', 'pKey')
+     
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testSqllit3']

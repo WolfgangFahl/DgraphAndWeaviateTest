@@ -6,9 +6,11 @@ Created on 2020-07-23
 import unittest
 from storage.simple import Simple
 from storage.dgraph import Dgraph
-import urllib.request
+from storage.sample import Sample
+
 import json
 import getpass
+import time
 
 class TestDgraph(unittest.TestCase):
     ''' test Dgraph database '''
@@ -31,9 +33,7 @@ class TestDgraph(unittest.TestCase):
         '''
         test a list of cities
         '''
-        cityJsonUrl="https://raw.githubusercontent.com/lutangar/cities.json/master/cities.json"
-        with urllib.request.urlopen(cityJsonUrl) as url:
-            cityList=json.loads(url.read().decode())
+        cityList=Sample.getCities()
         self.assertEqual(128769,(len(cityList)))
         cityIter=iter(cityList)
         #limit=len(cityList)
@@ -63,6 +63,7 @@ type City {
    country
 }'''
         dgraph.addSchema(schema)
+        startTime=time.time()
         dgraph.addData(obj=cityList,limit=limit,batchSize=250)
         query='''{ 
   # get cities
@@ -75,7 +76,12 @@ type City {
   }
 }
         '''
+        elapsed=time.time()-startTime
+        print ("dgraph:adding %d records took %5.3f s => %5.f records/s" % (limit,elapsed,limit/elapsed))
+        startTime=time.time()
         queryResult=dgraph.query(query)
+        elapsed=time.time()-startTime
+        print ("dgraph:query of %d records took %5.3f s => %5.f records/s" % (limit,elapsed,limit/elapsed))
         self.assertTrue('cities' in queryResult)
         qCityList=queryResult['cities']
         self.assertEqual(limit,len(qCityList))
