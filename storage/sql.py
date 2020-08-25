@@ -142,10 +142,17 @@ class EntityInfo(object):
         get the CREATE TABLE DDL command for the given sample record
         
         Args:
-            sampleRecord(dict): a sample Record
+            sampleRecord(dict): a sample Record    
             
         Returns:
             string: CREATE TABLE DDL command for this entity info 
+            
+        Example:   
+      
+        .. code-block:: sql
+            
+            CREATE TABLE Person(name TEXT PRIMARY KEY,born DATE,numberInLine INTEGER,wikidataurl TEXT,age FLOAT,ofAge BOOLEAN)
+    
         '''
         ddlCmd="CREATE TABLE %s(" %self.name
         delim=""
@@ -204,6 +211,13 @@ class EntityInfo(object):
         self.typeMap[column]=valueType     
         
     def fixDates(self,resultList):
+        '''
+        fix date entries in the given resultList by parsing the date content e.g.
+        converting '1926-04-21' back to datetime.date(1926, 4, 21)
+        
+        Args:
+            resultList(list): the list of records to be fixed
+        '''
         for record in resultList:
             for key,valueType in self.typeMap.items():
                 if valueType==datetime.date:
