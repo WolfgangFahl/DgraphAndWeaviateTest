@@ -8,7 +8,6 @@ import getpass
 from storage.sparql import SPARQL
 from storage.sample import Sample
 import time
-from datetime import datetime,date
 
 class TestSPARQL(unittest.TestCase):
     ''' Test Apache Jena access via Wrapper'''
@@ -24,6 +23,12 @@ class TestSPARQL(unittest.TestCase):
     def getJena(self,mode='query',debug=False,typedLiterals=False,profile=False):
         '''
         get the jena endpoint for the given mode
+        
+        Args:
+           mode(string): query or update
+           debug(boolean): True if debug information should be output
+           typedLiterals(boolean): True if INSERT DATA SPARQL commands should use typed literals
+           profile(boolean): True if profile/timing information should be shown
         '''
         endpoint="http://localhost:3030/example"
         jena=SPARQL(endpoint,mode=mode,debug=debug,typedLiterals=typedLiterals,profile=profile)
@@ -51,25 +56,35 @@ class TestSPARQL(unittest.TestCase):
         }
         """,'INVALID COMMAND']
         for index,insertCommand in enumerate(insertCommands):
-            try:
-                result=jena.insert(insertCommand)
-                self.assertTrue(index==0)
+            result,ex=jena.insert(insertCommand)
+            if index==0:
+                self.assertTrue(ex is None)
                 print(result)
-            except Exception as ex:
-                self.assertTrue(index==1)
+            else:
                 msg=ex.args[0]
                 self.assertTrue("QueryBadFormed" in msg)
                 self.assertTrue("Error 400" in msg)
                 pass
             
-    def checkErrors(self,errors):      
+    def checkErrors(self,errors,expected=0):      
+        '''
+        check the given list of errors - print any errors if there are some
+        and after that assert that the lenght of the list of errors is zero
+        
+        Args:
+            errors(list): the list of errors to check
+        '''
         if len(errors)>0:
             print("ERRORS:")
             for error in errors:
                 print(error)
-        self.assertEquals(0,len(errors)) 
+        self.assertEquals(expected,len(errors)) 
     
     def testDob(self):
+        '''
+        test the DOB (date of birth) function taht converts from ISO-Date to
+        datetime.date
+        '''
         dt=Sample.dob("1926-04-21")
         self.assertEqual(1926,dt.year)
         self.assertEqual(4,dt.month)
@@ -121,6 +136,24 @@ class TestSPARQL(unittest.TestCase):
         expected="Α\\tΩ\\r\\n"
         esc=SPARQL.controlEscape(controls)
         self.assertEqual(expected,esc)    
+        
+    def testSPARQLErrorMessage(self):
+        '''
+        test error handling 
+        see https://stackoverflow.com/questions/63486767/how-can-i-get-the-fuseki-api-via-sparqlwrapper-to-properly-report-a-detailed-err
+        '''
+        listOfDicts=[{
+            'title': '“Bioinformatics of Genome Regulation and Structure\Systems Biology” – BGRS\SB-2018',
+            'url': 'https://thenode.biologists.com/event/11th-international-multiconference-bioinformatics-genome-regulation-structuresystems-biology-bgrssb-2018/'}]
+        entityType="cr:Event"   
+        primaryKey='title'
+        prefixes="PREFIX cr: <http://cr.bitplan.com/Event/0.1/>"
+        jena=self.getJena(mode='update',typedLiterals=False,debug=True)
+        errors=jena.insertListOfDicts(listOfDicts,entityType,primaryKey,prefixes)
+        self.checkErrors(errors,1)
+        error=errors[0]
+        self.assertTrue("probably the sparql query is bad formed" in error)
+         
         
     def testEscapeStringContent(self):
         '''

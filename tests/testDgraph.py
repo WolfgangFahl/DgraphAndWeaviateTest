@@ -7,8 +7,6 @@ import unittest
 from storage.simple import Simple
 from storage.dgraph import Dgraph
 from storage.sample import Sample
-
-import json
 import getpass
 import time
 
@@ -18,8 +16,8 @@ class TestDgraph(unittest.TestCase):
 
     def setUp(self):
         self.host='localhost'
-        if getpass.getuser()=="wf":
-            self.host='venus'
+        #if getpass.getuser()=="wf":
+        #    self.host='venus'
         pass
 
     def tearDown(self):
