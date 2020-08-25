@@ -48,33 +48,11 @@ class SQLDB(object):
         Returns:
            EntityInfo: meta data information for the created table
         '''
-        ddlCmd="CREATE TABLE %s(" %entityName
         if len(listOfRecords)<1:
             raise Exception("Need a sample record to createTable")
         sampleRecord=listOfRecords[0]
-        delim=""
-        entityInfo=EntityInfo(entityName,primaryKey,debug=self.debug)
-        for key,value in sampleRecord.items():
-            valueType=type(value)
-            if valueType == str:
-                sqlType="TEXT"
-            elif valueType == int:
-                sqlType="INTEGER"
-            elif valueType == float:
-                sqlType="FLOAT"
-            elif valueType == bool:
-                sqlType="BOOLEAN"      
-            elif valueType == datetime.date:
-                sqlType="DATE"    
-            else:
-                raise Exception("unsupported type %s " % str(valueType))
-            ddlCmd+="%s%s %s%s" % (delim,key,sqlType," PRIMARY KEY" if key==primaryKey else "")
-            entityInfo.addType(key,valueType)
-            delim=", "
-        ddlCmd+=")"  
-        if self.debug:
-            print (ddlCmd) 
-        self.c.execute(ddlCmd)
+        entityInfo=EntityInfo(sampleRecord,entityName,primaryKey,debug=self.debug) 
+        self.c.execute(entityInfo.createTableCmd)
         return entityInfo
        
     def store(self,listOfRecords,entityInfo):
@@ -86,20 +64,9 @@ class SQLDB(object):
            listOfRecords(list): the list of Dicts to be stored
            entityInfo(EntityInfo): the meta data to be used for storing
         '''
-        index=0;
-        for record in listOfRecords:
-            cmd="INSERT INTO %s" % entityInfo.name
-            cmd+="(%s)" % (",".join(record.keys()))
-            cmd+="values(%s)" % (",".join(entityInfo.getValueList(record,index)))
-            index+=1 
-            if self.debug:
-                print(cmd)
-            try:    
-                self.c.execute(cmd) 
-            except Exception as ex:
-                print(ex)
-                print(cmd)
-                 
+        insertCmd=entityInfo.insertCmd
+        self.c.executemany(insertCmd,listOfRecords)
+        self.c.commit()
         
     def query(self,sqlQuery):
         '''
@@ -108,7 +75,7 @@ class SQLDB(object):
         Args:
             
             sqlQuery(string): the SQL query to be executed
-            
+                
         Returns:
             list: a list of Dicts
         '''
@@ -125,12 +92,18 @@ class SQLDB(object):
         cur.close()
         return resultList
         
-    def queryAll(self,entityName):
+    def queryAll(self,entityInfo,fixDates=True):
         '''
         query all records for the given entityName/tableName
+        
+        Args:
+           entityName(string): name of the entity/table to qury
+           fixDates(boolean): True if date entries should be returned as such and not as strings
         '''  
-        sqlQuery='SELECT * FROM %s' % entityName
+        sqlQuery='SELECT * FROM %s' % entityInfo.name
         resultList=self.query(sqlQuery)
+        if fixDates:
+            entityInfo.fixDates(resultList)
         return resultList
         
 class EntityInfo(object):
@@ -147,7 +120,7 @@ class EntityInfo(object):
     
     """
         
-    def __init__(self,name,primaryKey=None,debug=False):
+    def __init__(self,sampleRecord,name,primaryKey=None,debug=False):
         '''
         construct me from the given name and primary key
         
@@ -156,10 +129,68 @@ class EntityInfo(object):
            primaryKey(string): the name of the primary key column
            debug(boolean): True if debug information should be shown
         '''
+        self.sampleRecord=sampleRecord
         self.name=name
         self.primaryKey=primaryKey
         self.debug=debug
         self.typeMap={}
+        self.createTableCmd=self.getCreateTableCmd(sampleRecord)
+        self.insertCmd=self.getInsertCmd()
+        
+    def getCreateTableCmd(self,sampleRecord):
+        '''
+        get the CREATE TABLE DDL command for the given sample record
+        
+        Args:
+            sampleRecord(dict): a sample Record
+            
+        Returns:
+            string: CREATE TABLE DDL command for this entity info 
+        '''
+        ddlCmd="CREATE TABLE %s(" %self.name
+        delim=""
+        for key,value in sampleRecord.items():
+            valueType=type(value)
+            if valueType == str:
+                sqlType="TEXT"
+            elif valueType == int:
+                sqlType="INTEGER"
+            elif valueType == float:
+                sqlType="FLOAT"
+            elif valueType == bool:
+                sqlType="BOOLEAN"      
+            elif valueType == datetime.date:
+                sqlType="DATE"    
+            else:
+                raise Exception("unsupported type %s " % str(valueType))
+            ddlCmd+="%s%s %s%s" % (delim,key,sqlType," PRIMARY KEY" if key==self.primaryKey else "")
+            self.addType(key,valueType)
+            delim=","
+        ddlCmd+=")"  
+        if self.debug:
+            print (ddlCmd)    
+        return ddlCmd
+        
+    def getInsertCmd(self):
+        '''
+        get the INSERT command for this entityInfo
+        
+        Returns:
+            the INSERT INTO SQL command for his entityInfo e.g.
+                 
+        Example:   
+      
+        .. code-block:: sql
+
+            INSERT INTO Person (name,born,numberInLine,wikidataurl,age,ofAge) values (?,?,?,?,?,?).
+
+        '''
+        columns =','.join(self.typeMap.keys())
+        placeholders=':'+',:'.join(self.typeMap.keys())
+        insertCmd="INSERT INTO %s (%s) values (%s)" % (self.name, columns,placeholders)
+        if self.debug:
+            print(insertCmd)
+        return insertCmd
         
     def addType(self,column,valueType):
         '''
@@ -172,6 +203,14 @@ class EntityInfo(object):
         '''
         self.typeMap[column]=valueType     
         
+    def fixDates(self,resultList):
+        for record in resultList:
+            for key,valueType in self.typeMap.items():
+                if valueType==datetime.date:
+                    dt=datetime.datetime.strptime(record[key],"%Y-%m-%d")  
+                    dateValue=dt.date()  
+                    record[key]=dateValue
+      
     def getValueList(self,record,index):
         valueList=[]
         for key,value in record.items():
