@@ -92,9 +92,7 @@ type City {
         ''' 
         test handling countries
         '''
-        countryJsonUrl="https://gist.githubusercontent.com/erdem/8c7d26765831d0f9a8c62f02782ae00d/raw/248037cd701af0a4957cce340dabb0fd04e38f4c/countries.json"
-        with urllib.request.urlopen(countryJsonUrl) as url:
-            countryList=json.loads(url.read().decode())
+        countryList=Sample.getCountries()
         #print(countryList)    
         dgraph=self.getDGraph()
         dgraph.drop_all()

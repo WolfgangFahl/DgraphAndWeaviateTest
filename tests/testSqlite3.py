@@ -17,7 +17,6 @@ class TestSQLDB(unittest.TestCase):
         self.debug=True
         pass
 
-
     def tearDown(self):
         pass
     
@@ -70,8 +69,7 @@ class TestSQLDB(unittest.TestCase):
         '''
         limit=100000
         listOfRecords=Sample.getSample(limit)
-        self.checkListOfRecords(listOfRecords, 'Sample', 'pKey')
-     
+        self.checkListOfRecords(listOfRecords, 'Sample', 'pKey')     
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testSqllit3']
