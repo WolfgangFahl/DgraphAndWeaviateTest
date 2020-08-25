@@ -7,6 +7,7 @@ Created on 2020-08-24
 import sqlite3
 import datetime
 import time
+import sys
 
 class SQLDB(object):
     '''
@@ -119,6 +120,8 @@ class SQLDB(object):
         
         see https://stackoverflow.com/a/59042442/1497139
         '''
+        if sys.version_info <= (3, 6):
+            raise Exception("backup via stdlibrary not available in python <=3.6 see https://stackoverflow.com/a/49884210/1497139 for an alternative")
         startTime=time.time()
         bck=sqlite3.connect(backupDB)
         if showProgress>0:

@@ -6,6 +6,7 @@ Created on 2020-08-24
 import unittest
 import time
 import os
+import sys
 from storage.sample import Sample
 from storage.sql import SQLDB, EntityInfo
 
@@ -89,13 +90,14 @@ class TestSQLDB(unittest.TestCase):
         '''
         test creating a backup of the SQL database
         '''
-        listOfRecords=Sample.getCities()
-        self.checkListOfRecords(listOfRecords,'City',fixDates=True,doClose=False)
-        backupDB="/tmp/testSqlite.db"
-        self.sqlDB.backup(backupDB,profile=True,showProgress=100)
-        size=os.stat(backupDB).st_size
-        print ("size of backup DB is %d" % size)
-        self.assertTrue(size>600000)
+        if sys.version_info >= (3, 7):
+            listOfRecords=Sample.getCities()
+            self.checkListOfRecords(listOfRecords,'City',fixDates=True,doClose=False)
+            backupDB="/tmp/testSqlite.db"
+            self.sqlDB.backup(backupDB,profile=True,showProgress=100)
+            size=os.stat(backupDB).st_size
+            print ("size of backup DB is %d" % size)
+            self.assertTrue(size>600000)
         
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testSqllit3']
