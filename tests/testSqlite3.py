@@ -94,10 +94,16 @@ class TestSQLDB(unittest.TestCase):
             listOfRecords=Sample.getCities()
             self.checkListOfRecords(listOfRecords,'City',fixDates=True,doClose=False)
             backupDB="/tmp/testSqlite.db"
-            self.sqlDB.backup(backupDB,profile=True,showProgress=100)
+            self.sqlDB.backup(backupDB,profile=True,showProgress=200)
             size=os.stat(backupDB).st_size
             print ("size of backup DB is %d" % size)
             self.assertTrue(size>600000)
+            self.sqlDB.close()
+            # restore
+            ramDB=SQLDB.restore(backupDB, SQLDB.RAM, profile=True)
+            entityInfo=EntityInfo(listOfRecords[0],'City',debug=True)
+            allCities=ramDB.queryAll(entityInfo)
+            self.assertEqual(len(allCities),len(listOfRecords))
         
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testSqllit3']

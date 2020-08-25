@@ -16,20 +16,24 @@ class SQLDB(object):
     :ivar dbname(string): name of the database
     :ivar debug(boolean): True if debug info should be provided
     '''
+    RAM=":memory:"
 
-    def __init__(self,dbname=':memory:',debug=False):
+    def __init__(self,dbname=':memory:',connection=None,debug=False):
         '''
         Construct me for the given dbname and debug
         
         Args:
         
            dbname(string): name of the database - default is a RAM based database
-        
+           connection(Connection): an optional connectio to be reused 
            debug(boolean): if True switch on debug
         '''
         self.dbname=dbname
         self.debug=debug
-        self.c=sqlite3.connect(dbname)
+        if connection is None:
+            self.c=sqlite3.connect(dbname)
+        else:
+            self.c=connection
         
     def close(self):
         ''' close my connection '''
@@ -114,11 +118,17 @@ class SQLDB(object):
         '''
         print('Backup %s at %5.0f%%' % ("... " if status==0 else "done",(total-remaining)/total*100)) 
     
-    def backup(self,backupDB,profile=False,showProgress=10):
+    def backup(self,backupDB,action="Backup",profile=False,showProgress=200,doClose=True):
         '''
         create backup of this SQLDB to the given backup db
         
         see https://stackoverflow.com/a/59042442/1497139
+        
+        Args:
+            backupDB(string): the path to the backupdb or SQLDB.RAM for in memory
+            action(string): the action to display
+            profile(boolean): True if timing information shall be shown
+            showProgress(int): show progress at each showProgress page (0=show no progress)
         '''
         if sys.version_info <= (3, 6):
             raise Exception("backup via stdlibrary not available in python <=3.6 see https://stackoverflow.com/a/49884210/1497139 for an alternative")
@@ -129,11 +139,32 @@ class SQLDB(object):
         else:
             progress=None
         with bck:
-            self.c.backup(bck,pages=showProgress,progress=progress)
-        bck.close()    
+            self.c.backup(bck,pages=showProgress,progress=progress)        
         elapsed=time.time()-startTime
         if profile:
-            print("Backup to %s took %5.1f s" % (backupDB,elapsed))
+            print("%s to %s took %5.1f s" % (action,backupDB,elapsed))
+        if doClose:
+            bck.close()
+            return None
+        else:
+            return bck
+        
+    @staticmethod
+    def restore(backupDB,restoreDB,profile=False,showProgress=200,debug=False):
+        '''
+        restore the restoreDB from the given backup DB
+        
+        Args:
+            backupDB(string): path to the backupDB e.g. backup.db
+            restoreDB(string): path to the restoreDB or in Memory SQLDB.RAM
+            profile(boolean): True if timing information should be shown
+            showProgress(int): show progress at each showProgress page (0=show no progress)
+        '''
+        backupSQLDB=SQLDB(backupDB)
+        connection=backupSQLDB.backup(restoreDB,action="Restore",profile=profile,showProgress=showProgress,doClose=False)
+        restoreSQLDB=SQLDB(restoreDB,connection=connection,debug=debug)
+        return restoreSQLDB
+    
         
 class EntityInfo(object):
     """
@@ -253,25 +284,3 @@ class EntityInfo(object):
                     dt=datetime.datetime.strptime(record[key],"%Y-%m-%d")  
                     dateValue=dt.date()  
                     record[key]=dateValue
-      
-    def getValueList(self,record,index):
-        valueList=[]
-        for key,value in record.items():
-            if not key in self.typeMap:
-                raise("unknown column %s" ,key)
-            mapValueType=self.typeMap[key]
-            valueType=type(value)
-            if mapValueType!=valueType:
-                raise("expected type %s but got %s for record %d of %s" % (str(mapValueType),str(valueType),index,self.name))
-            if valueType==str:
-                strValue="'%s'" % value
-            elif valueType==datetime.date:
-                strValue="'%s'" % value   
-            else:
-                strValue=str(value)
-            if self.debug:
-                print("%s(%s)=%s" % (key,str(valueType),strValue))
-            valueList.append(strValue)
-        return valueList   
-    
-   
