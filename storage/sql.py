@@ -35,7 +35,7 @@ class SQLDB(object):
         self.debug=debug
         self.errorDebug=errorDebug
         if connection is None:
-            self.c=sqlite3.connect(dbname)
+            self.c=sqlite3.connect(dbname,detect_types=sqlite3.PARSE_DECLTYPES)
         else:
             self.c=connection
         
@@ -255,6 +255,8 @@ class EntityInfo(object):
                 sqlType="BOOLEAN"      
             elif valueType == datetime.date:
                 sqlType="DATE"    
+            elif valueType== datetime.datetime:
+                sqlType="TIMESTAMP"
             else:
                 raise Exception("unsupported type %s for column %s " % (str(valueType),key))
             ddlCmd+="%s%s %s%s" % (delim,key,sqlType," PRIMARY KEY" if key==self.primaryKey else "")

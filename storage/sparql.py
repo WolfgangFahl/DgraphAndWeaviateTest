@@ -208,6 +208,9 @@ class SPARQL(object):
                             #if self.typedLiterals:
                             tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#date>' %value
                             pass
+                        elif valueType==datetime.datetime:
+                            tObject='"%s"^^<http://www.w3.org/2001/XMLSchema#dateTime>' %value
+                            pass
                         else:
                             errors.append("can't handle type %s in record %d" % (valueType,index))
                             tObject=None

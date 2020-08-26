@@ -64,7 +64,7 @@ class TestSQLDB(unittest.TestCase):
         test sqlite3 with a few records from the royal family
         '''
         listOfRecords=Sample.getRoyals()
-        resultList=self.checkListOfRecords(listOfRecords, 'Person', 'name',fixDates=True,debug=True)
+        resultList=self.checkListOfRecords(listOfRecords, 'Person', 'name',debug=True)
         if self.debug:
             print(resultList)
         self.assertEquals(listOfRecords,resultList)

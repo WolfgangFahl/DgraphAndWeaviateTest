@@ -66,5 +66,6 @@ class Sample(object):
             age=(today - born).days / 365.2425
             person['age']=age
             person['ofAge']=age>=18
+            person['lastmodified']=datetime.now()
         return listOfDicts
         
