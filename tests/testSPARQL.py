@@ -69,7 +69,7 @@ class TestSPARQL(unittest.TestCase):
     def checkErrors(self,errors,expected=0):      
         '''
         check the given list of errors - print any errors if there are some
-        and after that assert that the lenght of the list of errors is zero
+        and after that assert that the length of the list of errors is zero
         
         Args:
             errors(list): the list of errors to check
@@ -82,7 +82,7 @@ class TestSPARQL(unittest.TestCase):
     
     def testDob(self):
         '''
-        test the DOB (date of birth) function taht converts from ISO-Date to
+        test the DOB (date of birth) function that converts from ISO-Date to
         datetime.date
         '''
         dt=Sample.dob("1926-04-21")
@@ -112,13 +112,13 @@ class TestSPARQL(unittest.TestCase):
         jena=self.getJena(mode="query")    
         queryString = """
         PREFIX foafo: <http://foafo.bitplan.com/foafo/0.1/>
-        SELECT ?name ?born ?numberInLine ?wikidataurl ?ofAge ?age WHERE { 
+        SELECT ?name ?born ?numberInLine ?wikidataurl ?age ?ofAge ?lastmodified WHERE { 
             ?person foafo:Person_name ?name.
             ?person foafo:Person_born ?born.
             ?person foafo:Person_numberInLine ?numberInLine.
             ?person foafo:Person_wikidataurl ?wikidataurl.
-            ?person foafo:Person_ofAge ?ofAge.
             ?person foafo:Person_age ?age.
+            ?person foafo:Person_ofAge ?ofAge.
             ?person foafo:Person_lastmodified ?lastmodified. 
         }"""
         personResults=jena.query(queryString)
