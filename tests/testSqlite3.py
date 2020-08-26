@@ -68,6 +68,21 @@ class TestSQLDB(unittest.TestCase):
             print(resultList)
         self.assertEquals(listOfRecords,resultList)
         
+    def testBindingError(self):
+        '''
+        test list of Records with incomplete record leading to
+        "You did not supply a value for binding 2"
+        see https://bugs.python.org/issue41638
+        '''
+        listOfRecords=[{'name':'Pikachu', 'type':'Electric'},{'name':'Raichu' }]
+        try:
+            self.checkListOfRecords(listOfRecords,'Pokemon','name')
+            self.fail("There should be an exception")
+        except Exception as ex:
+            if self.debug:
+                print(str(ex))
+            self.assertTrue('no value supplied for column' in str(ex))                                                         
+        
     def testListOfCities(self):
         '''
         test sqlite3 with some 120000 city records

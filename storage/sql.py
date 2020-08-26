@@ -8,6 +8,7 @@ import sqlite3
 import datetime
 import time
 import sys
+import re
 
 class SQLDB(object):
     '''
@@ -71,8 +72,17 @@ class SQLDB(object):
            entityInfo(EntityInfo): the meta data to be used for storing
         '''
         insertCmd=entityInfo.insertCmd
-        self.c.executemany(insertCmd,listOfRecords)
-        self.c.commit()
+        try:
+            self.c.executemany(insertCmd,listOfRecords)
+            self.c.commit()
+        except sqlite3.ProgrammingError as pe:
+            msg=pe.args[0]
+            if "You did not supply a value for binding" in msg:
+                columnIndex=int(re.findall(r'\d+',msg)[0])
+                columnName=list(entityInfo.typeMap.keys())[columnIndex-1]
+                raise Exception("%s\nfailed: no value supplied for column '%s'" % (insertCmd,columnName))
+            else:
+                raise pe
         
     def query(self,sqlQuery):
         '''
@@ -217,7 +227,11 @@ class EntityInfo(object):
         ddlCmd="CREATE TABLE %s(" %self.name
         delim=""
         for key,value in sampleRecord.items():
-            valueType=type(value)
+            if value is None:
+                print("Warning sampleRecord column %s is None - using TEXT as type" % key)
+                valueType=str
+            else:
+                valueType=type(value)
             if valueType == str:
                 sqlType="TEXT"
             elif valueType == int:
@@ -229,7 +243,7 @@ class EntityInfo(object):
             elif valueType == datetime.date:
                 sqlType="DATE"    
             else:
-                raise Exception("unsupported type %s " % str(valueType))
+                raise Exception("unsupported type %s for column %s " % (str(valueType),key))
             ddlCmd+="%s%s %s%s" % (delim,key,sqlType," PRIMARY KEY" if key==self.primaryKey else "")
             self.addType(key,valueType)
             delim=","
