@@ -118,7 +118,8 @@ class TestSPARQL(unittest.TestCase):
             ?person foafo:Person_numberInLine ?numberInLine.
             ?person foafo:Person_wikidataurl ?wikidataurl.
             ?person foafo:Person_ofAge ?ofAge.
-            ?person foafo:Person_age ?age. 
+            ?person foafo:Person_age ?age.
+            ?person foafo:Person_lastmodified ?lastmodified. 
         }"""
         personResults=jena.query(queryString)
         self.assertEqual(len(listofDicts),len(personResults))
