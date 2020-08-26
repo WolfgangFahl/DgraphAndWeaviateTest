@@ -56,8 +56,8 @@ class TestSQLDB(unittest.TestCase):
         '''
         listOfRecords=Sample.getRoyals()
         entityInfo=EntityInfo(listOfRecords[0],'Person','name',debug=True)
-        self.assertEqual("CREATE TABLE Person(name TEXT PRIMARY KEY,born DATE,numberInLine INTEGER,wikidataurl TEXT,age FLOAT,ofAge BOOLEAN)",entityInfo.createTableCmd)
-        self.assertEqual("INSERT INTO Person (name,born,numberInLine,wikidataurl,age,ofAge) values (:name,:born,:numberInLine,:wikidataurl,:age,:ofAge)",entityInfo.insertCmd)
+        self.assertEqual("CREATE TABLE Person(name TEXT PRIMARY KEY,born DATE,numberInLine INTEGER,wikidataurl TEXT,age FLOAT,ofAge BOOLEAN,lastmodified TIMESTAMP)",entityInfo.createTableCmd)
+        self.assertEqual("INSERT INTO Person (name,born,numberInLine,wikidataurl,age,ofAge,lastmodified) values (:name,:born,:numberInLine,:wikidataurl,:age,:ofAge,:lastmodified)",entityInfo.insertCmd)
     
     def testSqlite3(self):
         '''
