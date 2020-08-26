@@ -295,6 +295,9 @@ class SPARQL(object):
                     elif datatype=="http://www.w3.org/2001/XMLSchema#date":
                         dt=datetime.datetime.strptime(value.value,"%Y-%m-%d")  
                         resultValue=dt.date()  
+                    elif datatype=="http://www.w3.org/2001/XMLSchema#dateTime":
+                        dt=datetime.datetime.strptime(value.value,"%Y-%m-%d %H:%M:%S.%f")  
+                        resultValue=dt
                     else:
                         # unsupported datatype
                         resultValue=value.value      
