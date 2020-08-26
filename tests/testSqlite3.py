@@ -22,7 +22,7 @@ class TestSQLDB(unittest.TestCase):
     def tearDown(self):
         pass
     
-    def checkListOfRecords(self,listOfRecords,entityName,primaryKey=None,fixDates=False,debug=False,doClose=True):
+    def checkListOfRecords(self,listOfRecords,entityName,primaryKey=None,executeMany=True,fixDates=False,debug=False,doClose=True):
         '''
         check the handling of the given list of Records
         
@@ -31,16 +31,17 @@ class TestSQLDB(unittest.TestCase):
            listOfRecords(list): a list of dicts that contain the data to be stored
            entityName(string): the name of the entity type to be used as a table name
            primaryKey(string): the name of the key / column to be used as a primary key
+           executeMany(boolean): True if executeMany mode of sqlite3 should be used
            debug(boolean): True if debug information e.g. CREATE TABLE and INSERT INTO commands should be shown
            doClose(boolean): True if the connection should be closed
       
         '''     
         size=len(listOfRecords)
         print("%s size is %d fixDates is: %r" % (entityName,size,fixDates))
-        self.sqlDB=SQLDB(debug=debug)
+        self.sqlDB=SQLDB(debug=debug,errorDebug=True)
         entityInfo=self.sqlDB.createTable(listOfRecords,entityName,primaryKey)
         startTime=time.time()
-        self.sqlDB.store(listOfRecords,entityInfo)
+        self.sqlDB.store(listOfRecords,entityInfo,executeMany=executeMany)
         elapsed=time.time()-startTime
         print ("adding %d %s records took %5.3f s => %5.f records/s" % (size,entityName,elapsed,size/elapsed)) 
         resultList=self.sqlDB.queryAll(entityInfo,fixDates=fixDates)    
@@ -75,13 +76,14 @@ class TestSQLDB(unittest.TestCase):
         see https://bugs.python.org/issue41638
         '''
         listOfRecords=[{'name':'Pikachu', 'type':'Electric'},{'name':'Raichu' }]
-        try:
-            self.checkListOfRecords(listOfRecords,'Pokemon','name')
-            self.fail("There should be an exception")
-        except Exception as ex:
-            if self.debug:
-                print(str(ex))
-            self.assertTrue('no value supplied for column' in str(ex))                                                         
+        for executeMany in [True,False]:
+            try:
+                self.checkListOfRecords(listOfRecords,'Pokemon','name',executeMany=executeMany)
+                self.fail("There should be an exception")
+            except Exception as ex:
+                if self.debug:
+                    print(str(ex))
+                self.assertTrue('no value supplied for column' in str(ex))                                                         
         
     def testListOfCities(self):
         '''

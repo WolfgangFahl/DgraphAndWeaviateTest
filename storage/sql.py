@@ -16,10 +16,11 @@ class SQLDB(object):
     
     :ivar dbname(string): name of the database
     :ivar debug(boolean): True if debug info should be provided
+    :ivar errorDebug(boolean): True if debug info should be provided on errors (should not be used for production since it might reveal data)
     '''
     RAM=":memory:"
 
-    def __init__(self,dbname=':memory:',connection=None,debug=False):
+    def __init__(self,dbname=':memory:',connection=None,debug=False, errorDebug=False):
         '''
         Construct me for the given dbname and debug
         
@@ -28,9 +29,11 @@ class SQLDB(object):
            dbname(string): name of the database - default is a RAM based database
            connection(Connection): an optional connectio to be reused 
            debug(boolean): if True switch on debug
+           errorDebug(boolean): True if debug info should be provided on errors (should not be used for production since it might reveal data)
         '''
         self.dbname=dbname
         self.debug=debug
+        self.errorDebug=errorDebug
         if connection is None:
             self.c=sqlite3.connect(dbname)
         else:
@@ -62,7 +65,7 @@ class SQLDB(object):
         self.c.execute(entityInfo.createTableCmd)
         return entityInfo
        
-    def store(self,listOfRecords,entityInfo):
+    def store(self,listOfRecords,entityInfo,executeMany=False):
         '''
         store the given list of records based on the given entityInfo
         
@@ -73,14 +76,24 @@ class SQLDB(object):
         '''
         insertCmd=entityInfo.insertCmd
         try:
-            self.c.executemany(insertCmd,listOfRecords)
+            if executeMany:
+                self.c.executemany(insertCmd,listOfRecords)
+            else:
+                index=0
+                for record in listOfRecords:
+                    index+=1
+                    self.c.execute(insertCmd,record)
             self.c.commit()
         except sqlite3.ProgrammingError as pe:
             msg=pe.args[0]
             if "You did not supply a value for binding" in msg:
                 columnIndex=int(re.findall(r'\d+',msg)[0])
                 columnName=list(entityInfo.typeMap.keys())[columnIndex-1]
-                raise Exception("%s\nfailed: no value supplied for column '%s'" % (insertCmd,columnName))
+                debugInfo=""
+                if not executeMany:
+                    if self.errorDebug:
+                        debugInfo="\nrecord  #%d=%s" % (index,repr(record))
+                raise Exception("%s\nfailed: no value supplied for column '%s'%s" % (insertCmd,columnName,debugInfo))
             else:
                 raise pe
         
