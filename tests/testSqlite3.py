@@ -39,7 +39,7 @@ class TestSQLDB(unittest.TestCase):
         size=len(listOfRecords)
         print("%s size is %d fixDates is: %r" % (entityName,size,fixDates))
         self.sqlDB=SQLDB(debug=debug,errorDebug=True)
-        entityInfo=self.sqlDB.createTable(listOfRecords,entityName,primaryKey)
+        entityInfo=self.sqlDB.createTable(listOfRecords[:10],entityName,primaryKey)
         startTime=time.time()
         self.sqlDB.store(listOfRecords,entityInfo,executeMany=executeMany)
         elapsed=time.time()-startTime
@@ -55,7 +55,7 @@ class TestSQLDB(unittest.TestCase):
         test creating entityInfo from the sample record
         '''
         listOfRecords=Sample.getRoyals()
-        entityInfo=EntityInfo(listOfRecords[0],'Person','name',debug=True)
+        entityInfo=EntityInfo(listOfRecords[:3],'Person','name',debug=True)
         self.assertEqual("CREATE TABLE Person(name TEXT PRIMARY KEY,born DATE,numberInLine INTEGER,wikidataurl TEXT,age FLOAT,ofAge BOOLEAN,lastmodified TIMESTAMP)",entityInfo.createTableCmd)
         self.assertEqual("INSERT INTO Person (name,born,numberInLine,wikidataurl,age,ofAge,lastmodified) values (:name,:born,:numberInLine,:wikidataurl,:age,:ofAge,:lastmodified)",entityInfo.insertCmd)
     
@@ -118,7 +118,7 @@ class TestSQLDB(unittest.TestCase):
             self.sqlDB.close()
             # restore
             ramDB=SQLDB.restore(backupDB, SQLDB.RAM, profile=True)
-            entityInfo=EntityInfo(listOfRecords[0],'City',debug=True)
+            entityInfo=EntityInfo(listOfRecords[:50],'City',debug=True)
             allCities=ramDB.queryAll(entityInfo)
             self.assertEqual(len(allCities),len(listOfRecords))
         
