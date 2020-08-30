@@ -270,9 +270,11 @@ class EntityInfo(object):
         for sampleRecord in sampleRecords:
             for key,value in sampleRecord.items():
                 sqlType=None
+                valueType=None
                 if value is None:
-                    print("Warning sampleRecord column %s is None - using TEXT as type" % key)
-                    valueType=str
+                    if len(sampleRecords)==1:
+                        print("Warning sampleRecord column %s is None - using TEXT as type" % key)
+                        valueType=str
                 else:
                     valueType=type(value)
                 if valueType == str:
@@ -288,9 +290,10 @@ class EntityInfo(object):
                 elif valueType== datetime.datetime:
                     sqlType="TIMESTAMP"
                 else:
-                    msg="warning: unsupported type %s for column %s " % (str(valueType),key)
-                    print(msg)
-                if sqlType is not None:
+                    if valueType is not None:
+                        msg="warning: unsupported type %s for column %s " % (str(valueType),key)
+                        print(msg)
+                if sqlType is not None and valueType is not None:
                     self.addType(key,valueType,sqlType)
         for key,sqlType in self.sqlTypeMap.items():        
             ddlCmd+="%s%s %s%s" % (delim,key,sqlType," PRIMARY KEY" if key==self.primaryKey else "")
