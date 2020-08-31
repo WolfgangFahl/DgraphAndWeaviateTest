@@ -58,7 +58,17 @@ class TestSQLDB(unittest.TestCase):
         entityInfo=EntityInfo(listOfRecords[:3],'Person','name',debug=True)
         self.assertEqual("CREATE TABLE Person(name TEXT PRIMARY KEY,born DATE,numberInLine INTEGER,wikidataurl TEXT,age FLOAT,ofAge BOOLEAN,lastmodified TIMESTAMP)",entityInfo.createTableCmd)
         self.assertEqual("INSERT INTO Person (name,born,numberInLine,wikidataurl,age,ofAge,lastmodified) values (:name,:born,:numberInLine,:wikidataurl,:age,:ofAge,:lastmodified)",entityInfo.insertCmd)
+        self.sqlDB=SQLDB(debug=self.debug,errorDebug=True)
+        entityInfo=self.sqlDB.createTable(listOfRecords[:10],entityInfo.name,entityInfo.primaryKey)
+        tableList=self.sqlDB.getTableList()
+        if self.debug:
+            print (tableList)
+        self.assertEqual(1,len(tableList))
+        personTable=tableList[0]
+        self.assertEqual("Person",personTable['name'])
+        self.assertEqual(7,len(personTable['columns']))
     
+        
     def testSqlite3(self):
         '''
         test sqlite3 with a few records from the royal family

@@ -161,6 +161,19 @@ class SQLDB(object):
             entityInfo.fixDates(resultList)
         return resultList
     
+    def getTableList(self):
+        '''
+        get the schema information from this database
+        '''
+        tableQuery="SELECT name FROM sqlite_master WHERE type='table'"
+        tableList=self.query(tableQuery)
+        for table in tableList:
+            tableName=table['name']
+            columnQuery="PRAGMA table_info('%s')" % tableName
+            columns=self.query(columnQuery)
+            table['columns']=columns
+        return tableList
+     
     def progress(self,status, remaining, total):
         '''
         show progress
@@ -335,7 +348,7 @@ class EntityInfo(object):
         '''
         if not column in self.typeMap:
             self.typeMap[column]=valueType     
-            self.sqlTypeMap[column]=sqlType
+            self.sqlTypeMap[column]=sqlType          
         
     def fixDates(self,resultList):
         '''
