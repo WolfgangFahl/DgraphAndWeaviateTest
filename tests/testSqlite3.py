@@ -67,6 +67,22 @@ class TestSQLDB(unittest.TestCase):
         personTable=tableList[0]
         self.assertEqual("Person",personTable['name'])
         self.assertEqual(7,len(personTable['columns']))
+        plantUml=SQLDB.tableListToPlantUml(tableList,packageName="Royals")
+        if self.debug:
+            print(plantUml)
+        expected="""package Royals {
+  entity Person {
+    name : TEXT <<PK>>
+    born : DATE 
+    numberInLine : INTEGER 
+    wikidataurl : TEXT 
+    age : FLOAT 
+    ofAge : BOOLEAN 
+    lastmodified : TIMESTAMP 
+  }
+}
+"""
+        self.assertEqual(expected,plantUml)
     
         
     def testSqlite3(self):

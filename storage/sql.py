@@ -173,6 +173,30 @@ class SQLDB(object):
             columns=self.query(columnQuery)
             table['columns']=columns
         return tableList
+    
+    @staticmethod
+    def tableListToPlantUml(tableList, packageName=None):
+        '''
+        convert tableList to PlantUml donation
+        Args:
+            tableList(list) the tableList list of Dicts from getTableList() to convert
+        '''
+        uml=""
+        indent=""
+        if packageName is not None:
+            uml+="package %s {\n" % packageName
+            indent="  "
+        for table in tableList:
+            colUml=""
+            for col in table['columns']:
+                mandatory="*" if col['notnull']==1 else ""
+                pk="<<PK>>" if col['pk']==1 else ""
+                colUml+="%s  %s%s : %s %s\n" % (indent,mandatory,col['name'],col['type'],pk)
+            uml+="%sentity %s {\n%s%s}\n" % (indent,table['name'],colUml,indent)
+        if packageName is not None:
+            uml+="}\n"
+        return uml
+        
      
     def progress(self,status, remaining, total):
         '''
