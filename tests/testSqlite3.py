@@ -4,11 +4,13 @@ Created on 2020-08-24
 @author: wf
 '''
 import unittest
+from datetime import datetime
 import time
 import os
 import sys
 from storage.sample import Sample
 from storage.sql import SQLDB, EntityInfo
+
 
 class TestSQLDB(unittest.TestCase):
     '''
@@ -83,7 +85,32 @@ class TestSQLDB(unittest.TestCase):
 }
 """
         self.assertEqual(expected,plantUml)
-    
+        
+        # testGeneralization
+        listOfRecords=[{'name': 'Royal family', 'country': 'UK', 'lastmodified':datetime.now()}]
+        entityInfo=self.sqlDB.createTable(listOfRecords[:10],'Family','name')
+        tableList=self.sqlDB.getTableList()
+        self.assertEqual(2,len(tableList))
+        plantUml=SQLDB.tableListToPlantUml(tableList,generalizeTo="PersonBase")
+        print(plantUml)
+        expected='''entity PersonBase {
+  name : TEXT <<PK>>
+  lastmodified : TIMESTAMP 
+}
+entity Person {
+  born : DATE 
+  numberInLine : INTEGER 
+  wikidataurl : TEXT 
+  age : FLOAT 
+  ofAge : BOOLEAN 
+}
+entity Family {
+  country : TEXT 
+}
+PersonBase <|-- Person
+PersonBase <|-- Family
+'''
+        self.assertEqual(expected,plantUml)
         
     def testSqlite3(self):
         '''
