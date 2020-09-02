@@ -147,6 +147,25 @@ class TestSQLDB(unittest.TestCase):
             entityInfo=EntityInfo(listOfRecords[:50],'City',debug=True)
             allCities=ramDB.queryAll(entityInfo)
             self.assertEqual(len(allCities),len(listOfRecords))
+            
+    def testCopy(self):
+        '''
+        test copying databases into another database
+        '''
+        dbFile="/tmp/DAWT_Sample3x1000.db"
+        copyDB=SQLDB(dbFile)
+        for sampleNo in range(3):
+            listOfRecords=Sample.getSample(1000)
+            self.checkListOfRecords(listOfRecords, 'Sample_%d_1000' %sampleNo, 'pKey',doClose=False)  
+            self.sqlDB.copyTo(copyDB)
+        size=os.stat(dbFile).st_size
+        print ("size of copy DB is %d" % size)
+        self.assertTrue(size>100000)
+        tableList=copyDB.getTableList()
+        print(tableList)
+        for sampleNo in range(3):
+            self.assertEqual('Sample_%d_1000' %sampleNo,tableList[sampleNo]['name'])
+        
         
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testSqllit3']
