@@ -1,3 +1,71 @@
 #!/bin/bash
 # WF 2020-06-03
+
+#ansi colors
+#http://www.csc.uvic.ca/~sae/seng265/fall04/tips/s265s047-tips/bash-using-colors.html
+blue='\033[0;34m'
+red='\033[0;31m'
+green='\033[0;32m' # '\e[1;32m' is too bright for white bg.
+endColor='\033[0m'
+
+#
+# a colored message
+#   params:
+#     1: l_color - the color of the message
+#     2: l_msg - the message to display
+#
+color_msg() {
+  local l_color="$1"
+  local l_msg="$2"
+  echo -e "${l_color}$l_msg${endColor}"
+}
+
+# error
+#
+#   show an error message and exit
+#
+#   params:
+#     1: l_msg - the message to display
+error() {
+  local l_msg="$1"
+  # use ansi red for error
+  color_msg $red "Error: $l_msg" 1>&2
+  exit 1
+}
+
+#
+# show the usage
+#
+usage() {
+  echo "usage: $0 [-d|--dgraph] [-j|--jena][-w|--weaviate][-h|--help]"
+  echo "  -h|--help: show this usage"
+  echo "  -d|--dgraph: start dgraph"
+  echo "  -j|--jena: start jena"
+  echo "  -w|--weaviate: start weaviate"
+}
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+#echo $DIR
+# commandline option
+while [  "$1" != ""  ]
+do
+  option=$1
+  shift
+  case $option in
+    -h|--help)
+      usage
+      exit 0;;
+    -d|--dgraph)
+      $DIR/dgraph -p
+      $DIR/dgraph
+      ;;
+    -j|--jena)
+      $DIR/jena -l sampledata/example.ttl
+      $DIR/jena -f example
+      ;;
+    -w|--weaviate)
+      $DIR/weaviate
+      ;;
+  esac
+done
 python3 -m unittest discover
