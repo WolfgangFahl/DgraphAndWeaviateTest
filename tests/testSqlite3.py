@@ -160,7 +160,7 @@ class TestSQLDB(unittest.TestCase):
             self.sqlDB.copyTo(copyDB)
         size=os.stat(dbFile).st_size
         print ("size of copy DB is %d" % size)
-        self.assertTrue(size>100000)
+        self.assertTrue(size>70000)
         tableList=copyDB.getTableList()
         print(tableList)
         for sampleNo in range(3):

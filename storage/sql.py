@@ -235,6 +235,23 @@ class SQLDB(object):
         else:
             return bck
         
+    def showDump(self,dump,limit=10):
+        '''
+        show the given dump up to the given limit
+        
+        Args:
+            dump(string): the SQL dump to show
+            limit(int): the maximum number of lines to display
+        '''
+        s=io.StringIO(dump)
+        index=0
+        for line in s:
+            if index <= limit:
+                print(line)
+                index+=1    
+            else:
+                break        
+        
     def executeDump(self,connection,dump,title,maxErrors=100,errorDisplayLimit=12,profile=True):
         '''
         execute the given dump for the given connection
