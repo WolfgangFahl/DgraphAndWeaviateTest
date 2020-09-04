@@ -175,20 +175,6 @@ class SQLDB(object):
             columns=self.query(columnQuery)
             table['columns']=columns
         return tableList
-    
-    @staticmethod
-    def generalizeColumn(tableList,colName):
-        ''' 
-        remove the column with the given name from all tables in the tablelist and
-        return it
-        '''
-        gCol=None
-        for table in tableList:
-            for col in table['columns']:
-                if col['name']==colName:
-                    gCol=col
-                    table['columns'].remove(col)
-        return gCol            
               
     def progress(self,status, remaining, total):
         '''

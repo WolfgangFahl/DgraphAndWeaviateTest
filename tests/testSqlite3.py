@@ -9,6 +9,7 @@ import time
 import os
 import sys
 from storage.sample import Sample
+from storage.uml import UML
 from storage.sql import SQLDB, EntityInfo
 
 
@@ -69,7 +70,8 @@ class TestSQLDB(unittest.TestCase):
         personTable=tableList[0]
         self.assertEqual("Person",personTable['name'])
         self.assertEqual(7,len(personTable['columns']))
-        plantUml=SQLDB.tableListToPlantUml(tableList,packageName="Royals")
+        uml=UML()
+        plantUml=uml.tableListToPlantUml(tableList,packageName="Royals",withSkin=False)
         if self.debug:
             print(plantUml)
         expected="""package Royals {
@@ -91,7 +93,8 @@ class TestSQLDB(unittest.TestCase):
         entityInfo=self.sqlDB.createTable(listOfRecords[:10],'Family','name')
         tableList=self.sqlDB.getTableList()
         self.assertEqual(2,len(tableList))
-        plantUml=SQLDB.tableListToPlantUml(tableList,generalizeTo="PersonBase")
+        uml=UML()
+        plantUml=uml.tableListToPlantUml(tableList,generalizeTo="PersonBase",withSkin=False)
         print(plantUml)
         expected='''entity PersonBase {
   name : TEXT <<PK>>
