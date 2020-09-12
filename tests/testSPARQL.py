@@ -6,7 +6,7 @@ Created on 2020-08-14
 import unittest
 import getpass
 from storage.sparql import SPARQL
-from storage.sample import Sample
+from lodstorage.sample import Sample
 import time
 
 class TestSPARQL(unittest.TestCase):

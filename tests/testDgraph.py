@@ -6,7 +6,7 @@ Created on 2020-07-23
 import unittest
 from storage.simple import Simple
 from storage.dgraph import Dgraph
-from storage.sample import Sample
+from lodstorage.sample import Sample
 import getpass
 import time
 
