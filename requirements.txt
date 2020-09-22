@@ -2,7 +2,7 @@
 # https://pypi.org/project/pydgraph/
 pydgraph
 # https://www.semi.technology/documentation/weaviate/current/client-libs/python.html
-weaviate-client>=0.4.1
+weaviate-client>=1.1.0
 # https://pypi.org/project/ruruki
 ruruki
 # https://pypi.org/project/SPARQLWrapper/

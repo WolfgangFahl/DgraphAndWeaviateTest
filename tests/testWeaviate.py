@@ -31,13 +31,15 @@ class TestWeaviate(unittest.TestCase):
         make sure weaviate is running
         '''
         w=self.getClient()
-        self.assertTrue(w.is_reachable())
+        self.assertTrue(w.is_live())
+        self.assertTrue(w.is_ready())
             
 
     def testWeaviateSchema(self):
         ''' see https://www.semi.technology/documentation/weaviate/current/client-libs/python.html '''
-        return
         w = self.getClient()
+        contains_schema = w.schema.contains()
+        print("contains schema: %r" % contains_schema)
         try:
             w.create_schema("https://raw.githubusercontent.com/semi-technologies/weaviate-python-client/master/documentation/getting_started/people_schema.json")
         except:
@@ -47,17 +49,16 @@ class TestWeaviate(unittest.TestCase):
            [ {"name": "Alan Turing"}, "Person", "1c9cd584-88fe-5010-83d0-017cb3fcb446"],
            [ {"name": "Legends"}, "Group", "2db436b5-0557-5016-9c5f-531412adf9c6" ]
         ]
-        for entry in entries:
-            dict,type,uid=entry
-            try:
-                w.create(dict,type,uid)
-            except weaviate.exceptions.ThingAlreadyExistsException as taee:
-                print ("%s already created" % dict['name'])
-            
+        #for entry in entries:
+        #    dict,type,uid=entry
+        #    try:
+        #        w.create(dict,type,uid)
+        #    except weaviate.exceptions.ThingAlreadyExistsException as taee:
+        #        print ("%s already created" % dict['name'])
+        #    
         pass
     
     def testPersons(self):
-        return
         w = self.getClient()
 
         schema = {
@@ -76,8 +77,10 @@ class TestWeaviate(unittest.TestCase):
             "type": "thing"
         }
         }
-        w.create_schema(schema)
-        
+        if w.schema.contains(schema):
+            w.schema.delete_all()
+        w.schema.create(schema)
+        return
         w.create_thing({"name": "Andrew S. Tanenbaum"}, "Person")
         w.create_thing({"name": "Alan Turing"}, "Person")
         w.create_thing({"name": "John von Neumann"}, "Person")
@@ -87,7 +90,6 @@ class TestWeaviate(unittest.TestCase):
         '''
         https://stackoverflow.com/a/63077495/1497139
         '''
-        return
         schema = {
           "things": {
             "type": "thing",
@@ -141,10 +143,12 @@ class TestWeaviate(unittest.TestCase):
 
         client = self.getClient()
 
-        if not client.contains_schema():
-            client.create_schema(schema)
+        if client.schema.contains(schema):
+            client.schema.delete_all()
+        client.schema.create(schema)
 
         event = {"acronym": "example"}
+        return 
         client.create(event, "Event", "2a8d56b7-2dd5-4e68-aa40-53c9196aecde")
         city = {"name": "Amsterdam"}
         client.create(city, "City", "c60505f9-8271-4eec-b998-81d016648d85")
