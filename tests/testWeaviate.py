@@ -1,8 +1,3 @@
-'''
-Created on 2020-07-24
-
-@author: wf
-'''
 import unittest
 import weaviate
 import time
@@ -38,24 +33,24 @@ class TestWeaviate(unittest.TestCase):
     def testWeaviateSchema(self):
         ''' see https://www.semi.technology/documentation/weaviate/current/client-libs/python.html '''
         w = self.getClient()
-        contains_schema = w.schema.contains()
-        print("contains schema: %r" % contains_schema)
+        if w.schema.contains():
+            w.schema.delete_all()
         try:
-            w.create_schema("https://raw.githubusercontent.com/semi-technologies/weaviate-python-client/master/documentation/getting_started/people_schema.json")
+            w.schema.create("https://raw.githubusercontent.com/semi-technologies/weaviate-python-client/master/documentation/getting_started/people_schema.json") # instead of w.create_schema, see https://www.semi.technology/documentation/weaviate/current/how-tos/how-to-create-a-schema.html#creating-your-first-schema-with-the-python-client
         except:
             pass
         entries=[
-           [ {"name": "John von Neumann"}, "Person", "b36268d4-a6b5-5274-985f-45f13ce0c642"],
-           [ {"name": "Alan Turing"}, "Person", "1c9cd584-88fe-5010-83d0-017cb3fcb446"],
-           [ {"name": "Legends"}, "Group", "2db436b5-0557-5016-9c5f-531412adf9c6" ]
+            [ {"name": "John von Neumann"}, "Person", "b36268d4-a6b5-5274-985f-45f13ce0c642"],
+            [ {"name": "Alan Turing"}, "Person", "1c9cd584-88fe-5010-83d0-017cb3fcb446"],
+            [ {"name": "Legends"}, "Group", "2db436b5-0557-5016-9c5f-531412adf9c6" ]
         ]
-        #for entry in entries:
-        #    dict,type,uid=entry
-        #    try:
-        #        w.create(dict,type,uid)
-        #    except weaviate.exceptions.ThingAlreadyExistsException as taee:
-        #        print ("%s already created" % dict['name'])
-        #    
+        for entry in entries:
+            dict,type,uid=entry
+            try:
+                w.data_object.create(dict,type,uid) # instead of w.create(dict,type,uid), see https://www.semi.technology/documentation/weaviate/current/restful-api-references/semantic-kind.html#example-request-1
+            except weaviate.exceptions.ThingAlreadyExistsException as taee:
+                print ("%s already created" % dict['name'])
+            
         pass
     
     def testPersons(self):
@@ -77,84 +72,80 @@ class TestWeaviate(unittest.TestCase):
             "type": "thing"
         }
         }
-        if w.schema.contains(schema):
-            w.schema.delete_all()
-        w.schema.create(schema)
-        return
-        w.create_thing({"name": "Andrew S. Tanenbaum"}, "Person")
-        w.create_thing({"name": "Alan Turing"}, "Person")
-        w.create_thing({"name": "John von Neumann"}, "Person")
-        w.create_thing({"name": "Tim Berners-Lee"}, "Person")
+        w.schema.create(schema) # instead of w.create_schema(schema)
+        
+        w.data_object.create({"name": "Andrew S. Tanenbaum"}, "Person") # instead of  w.create_thing({"name": "Andrew S. Tanenbaum"}, "Person")
+        w.data_object.create({"name": "Alan Turing"}, "Person")
+        w.data_object.create({"name": "John von Neumann"}, "Person")
+        w.data_object.create({"name": "Tim Berners-Lee"}, "Person")
         
     def testEventSchema(self):    
         '''
         https://stackoverflow.com/a/63077495/1497139
         '''
         schema = {
-          "things": {
+            "things": {
             "type": "thing",
             "classes": [
-              {
+                {
                 "class": "Event",
                 "description": "event",
                 "properties": [
-                  {
+                    {
                     "name": "acronym",
                     "description": "acronym",
                     "dataType": [
-                      "text"
+                        "text"
                     ]
-                  },
-                  {
+                    },
+                    {
                     "name": "inCity",
                     "description": "city reference",
                     "dataType": [
-                      "City"
+                        "City"
                     ],
                     "cardinality": "many"
-                  }
+                    }
                 ]
-              },
-              {
+                },
+                {
                 "class": "City",
                 "description": "city",
                 "properties": [
-                  {
+                    {
                     "name": "name",
                     "description": "name",
                     "dataType": [
-                      "text"
+                        "text"
                     ]
-                  },
-                  {
+                    },
+                    {
                     "name": "hasEvent",
                     "description": "event references",
                     "dataType": [
-                      "Event"
+                        "Event"
                     ],
                     "cardinality": "many"
-                  }
+                    }
                 ]
-              }
+                }
             ]
-          }
+            }
         }
 
 
         client = self.getClient()
 
-        if client.schema.contains(schema):
-            client.schema.delete_all()
-        client.schema.create(schema)
+        if not client.schema.contains(schema):
+            client.schema.create(schema) # instead of client.create_schema(schema)
 
         event = {"acronym": "example"}
-        return 
-        client.create(event, "Event", "2a8d56b7-2dd5-4e68-aa40-53c9196aecde")
+        client.data_object.create(event, "Event", "2a8d56b7-2dd5-4e68-aa40-53c9196aecde") # instead of client.create(event, "Event", "2a8d56b7-2dd5-4e68-aa40-53c9196aecde")
         city = {"name": "Amsterdam"}
-        client.create(city, "City", "c60505f9-8271-4eec-b998-81d016648d85")
+        client.data_object.create(city, "City", "c60505f9-8271-4eec-b998-81d016648d85")
 
         time.sleep(2.0)
-        client.add_reference("c60505f9-8271-4eec-b998-81d016648d85", "hasEvent", "2a8d56b7-2dd5-4e68-aa40-53c9196aecde")
+        client.data_object.reference.add("c60505f9-8271-4eec-b998-81d016648d85", "hasEvent", "2a8d56b7-2dd5-4e68-aa40-53c9196aecde") # instead of client.add_reference("c60505f9-8271-4eec-b998-81d016648d85", "hasEvent", "2a8d56b7-2dd5-4e68-aa40-53c9196aecde"), see https://www.semi.technology/documentation/weaviate/current/restful-api-references/semantic-kind.html#add-a-cross-reference
 
 
 if __name__ == "__main__":
