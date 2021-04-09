@@ -3,8 +3,9 @@
 # Weaviate with an English Contextionary
 #
 
-# port to run weaviate at
-port=8153
+# port to be used
+port=8080
+
 # maximum number of seconds to wait for weaviate startup
 MAX_WAIT_SECONDS=60
 
@@ -62,12 +63,7 @@ fi
 
 # Download the Weaviate configuration file
 download() {
-  curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/config.yaml
-  # Download the Weaviate docker-compose file
-  curl -O https://raw.githubusercontent.com/semi-technologies/weaviate/0.22.14/docker-compose/runtime/en/docker-compose.yml
-  cat docker-compose.yml | sed s/8080/$port/g > /tmp/docker-compose.yml
-  mv /tmp/docker-compose.yml docker-compose.yml
-  # Run Docker Compose
+ curl -o docker-compose.yml "https://configuration.semi.technology/v2/docker-compose/docker-compose.yml?contextionary_compound_splitting=false&contextionary_language=en&contextionary_model=0.16.0&enterprise_usage_collector=false&media_type=text&runtime=docker-compose&text_module=text2vec-contextionary&weaviate_version=v1.2.1" 
 }
 
 #
@@ -104,6 +100,7 @@ cd $stage
 if [ $# -lt 1 ]
 then
   download
+  # Run Docker Compose
   docker-compose up -d
   wait4Weaviate
 fi

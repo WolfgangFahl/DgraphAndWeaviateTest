@@ -7,7 +7,7 @@ class TestWeaviate(unittest.TestCase):
 # https://www.semi.technology/documentation/weaviate/current/client-libs/python.html
 
     def setUp(self):
-        self.port=8153
+        self.port=8080
         self.host="localhost"
         #if getpass.getuser()=="wf":
         #    self.host="zeus"

@@ -22,20 +22,7 @@ install:
 script:
 # command to install dependencies
   - scripts/install
-# command to run Dgraph
-  # pull dgraph
-  - scripts/dgraph -p
-  # run dgraph
-  - scripts/dgraph
-  # pull and run weaviate
+# pull and run weaviate
   - scripts/weaviate
-# install apache jena and load example data
-  - scripts/jena -l sampledata/example.ttl
-  # run apache jena fuseki server
-  - scripts/jena -f example
 # command to run tests
   - scripts/test
-  # show log results
-  - cat /tmp/alpha.log
-  - cat /tmp/zero.log
-  - cat /tmp/ratel.log
